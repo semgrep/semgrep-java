@@ -5,7 +5,7 @@
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 
-#define LANGUAGE_VERSION 11
+#define LANGUAGE_VERSION 13
 #define STATE_COUNT 862
 #define LARGE_STATE_COUNT 235
 #define SYMBOL_COUNT 271
@@ -14,6 +14,7 @@
 #define EXTERNAL_TOKEN_COUNT 0
 #define FIELD_COUNT 30
 #define MAX_ALIAS_SEQUENCE_LENGTH 11
+#define PRODUCTION_ID_COUNT 115
 
 enum {
   sym_identifier = 1,
@@ -150,7 +151,7 @@ enum {
   sym_ternary_expression = 132,
   sym_unary_expression = 133,
   sym_update_expression = 134,
-  sym_primary = 135,
+  sym_primary_expression = 135,
   sym_array_creation_expression = 136,
   sym_dimensions_expr = 137,
   sym_parenthesized_expression = 138,
@@ -340,7 +341,7 @@ static const char *ts_symbol_names[] = {
   [anon_sym_instanceof] = "instanceof",
   [anon_sym_DASH_GT] = "->",
   [anon_sym_COMMA] = ",",
-  [anon_sym_QMARK] = "?",
+  [anon_sym_QMARK] = "\?",
   [anon_sym_COLON] = ":",
   [anon_sym_BANG] = "!",
   [anon_sym_TILDE] = "~",
@@ -424,7 +425,7 @@ static const char *ts_symbol_names[] = {
   [sym_ternary_expression] = "ternary_expression",
   [sym_unary_expression] = "unary_expression",
   [sym_update_expression] = "update_expression",
-  [sym_primary] = "primary",
+  [sym_primary_expression] = "primary_expression",
   [sym_array_creation_expression] = "array_creation_expression",
   [sym_dimensions_expr] = "dimensions_expr",
   [sym_parenthesized_expression] = "parenthesized_expression",
@@ -698,7 +699,7 @@ static TSSymbol ts_symbol_map[] = {
   [sym_ternary_expression] = sym_ternary_expression,
   [sym_unary_expression] = sym_unary_expression,
   [sym_update_expression] = sym_update_expression,
-  [sym_primary] = sym_primary,
+  [sym_primary_expression] = sym_primary_expression,
   [sym_array_creation_expression] = sym_array_creation_expression,
   [sym_dimensions_expr] = sym_dimensions_expr,
   [sym_parenthesized_expression] = sym_parenthesized_expression,
@@ -1377,7 +1378,7 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .visible = true,
     .named = true,
   },
-  [sym_primary] = {
+  [sym_primary_expression] = {
     .visible = true,
     .named = true,
   },
@@ -1990,7 +1991,7 @@ static const char *ts_field_names[] = {
   [field_value] = "value",
 };
 
-static const TSFieldMapSlice ts_field_map_slices[115] = {
+static const TSFieldMapSlice ts_field_map_slices[PRODUCTION_ID_COUNT] = {
   [1] = {.index = 0, .length = 2},
   [2] = {.index = 2, .length = 2},
   [3] = {.index = 4, .length = 1},
@@ -2525,8 +2526,12 @@ static const TSFieldMapEntry ts_field_map_entries[] = {
     {field_update, 8, .inherited = true},
 };
 
-static TSSymbol ts_alias_sequences[115][MAX_ALIAS_SEQUENCE_LENGTH] = {
+static TSSymbol ts_alias_sequences[PRODUCTION_ID_COUNT][MAX_ALIAS_SEQUENCE_LENGTH] = {
   [0] = {0},
+};
+
+static uint16_t ts_non_terminal_alias_map[] = {
+  0,
 };
 
 static bool ts_lex(TSLexer *lexer, TSStateId state) {
@@ -2568,7 +2573,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == '\r' ||
           lookahead == ' ') SKIP(0)
       if (('1' <= lookahead && lookahead <= '9')) ADVANCE(49);
-      if (('A' <= lookahead && lookahead <= 'Z') ||
+      if (('$' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z')) ADVANCE(146);
       END_STATE();
@@ -2602,7 +2607,8 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == '\r' ||
           lookahead == ' ') SKIP(1)
       if (('1' <= lookahead && lookahead <= '9')) ADVANCE(49);
-      if (('A' <= lookahead && lookahead <= 'Z') ||
+      if (lookahead == '$' ||
+          ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z')) ADVANCE(146);
       END_STATE();
@@ -2635,7 +2641,8 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == '\n' ||
           lookahead == '\r' ||
           lookahead == ' ') SKIP(2)
-      if (('A' <= lookahead && lookahead <= 'Z') ||
+      if (lookahead == '$' ||
+          ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z')) ADVANCE(146);
       END_STATE();
@@ -2668,7 +2675,8 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == '\n' ||
           lookahead == '\r' ||
           lookahead == ' ') SKIP(3)
-      if (('A' <= lookahead && lookahead <= 'Z') ||
+      if (lookahead == '$' ||
+          ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z')) ADVANCE(146);
       END_STATE();
@@ -2698,7 +2706,8 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == '\n' ||
           lookahead == '\r' ||
           lookahead == ' ') SKIP(5)
-      if (('A' <= lookahead && lookahead <= 'Z') ||
+      if (lookahead == '$' ||
+          ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z')) ADVANCE(146);
       END_STATE();
@@ -2721,7 +2730,8 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == '\n' ||
           lookahead == '\r' ||
           lookahead == ' ') SKIP(7)
-      if (('A' <= lookahead && lookahead <= 'Z') ||
+      if (lookahead == '$' ||
+          ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z')) ADVANCE(146);
       END_STATE();
@@ -2895,7 +2905,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == '\r' ||
           lookahead == ' ') SKIP(43)
       if (('1' <= lookahead && lookahead <= '9')) ADVANCE(49);
-      if (('A' <= lookahead && lookahead <= 'Z') ||
+      if (('$' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z')) ADVANCE(146);
       END_STATE();
@@ -2933,7 +2943,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == '\r' ||
           lookahead == ' ') SKIP(44)
       if (('1' <= lookahead && lookahead <= '9')) ADVANCE(49);
-      if (('A' <= lookahead && lookahead <= 'Z') ||
+      if (('$' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z')) ADVANCE(146);
       END_STATE();
@@ -2964,7 +2974,8 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == '\r' ||
           lookahead == ' ') SKIP(45)
       if (('1' <= lookahead && lookahead <= '9')) ADVANCE(49);
-      if (('A' <= lookahead && lookahead <= 'Z') ||
+      if (lookahead == '$' ||
+          ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z')) ADVANCE(146);
       END_STATE();
@@ -3053,9 +3064,9 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == 'e') ADVANCE(53);
       if (lookahead == 'P' ||
           lookahead == 'p') ADVANCE(33);
-      if (('0' <= lookahead && lookahead <= '9')) ADVANCE(51);
       if (('A' <= lookahead && lookahead <= 'F') ||
           ('a' <= lookahead && lookahead <= 'f')) ADVANCE(52);
+      if (('0' <= lookahead && lookahead <= '9')) ADVANCE(51);
       END_STATE();
     case 54:
       ACCEPT_TOKEN(sym_octal_integer_literal);
@@ -3152,9 +3163,9 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == 'e') ADVANCE(66);
       if (lookahead == 'P' ||
           lookahead == 'p') ADVANCE(33);
-      if (('0' <= lookahead && lookahead <= '9')) ADVANCE(64);
       if (('A' <= lookahead && lookahead <= 'F') ||
           ('a' <= lookahead && lookahead <= 'f')) ADVANCE(63);
+      if (('0' <= lookahead && lookahead <= '9')) ADVANCE(64);
       END_STATE();
     case 67:
       ACCEPT_TOKEN(sym_hex_floating_point_literal);
@@ -3446,7 +3457,8 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       END_STATE();
     case 146:
       ACCEPT_TOKEN(sym_identifier);
-      if (('0' <= lookahead && lookahead <= '9') ||
+      if (lookahead == '$' ||
+          ('0' <= lookahead && lookahead <= '9') ||
           ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z')) ADVANCE(146);
@@ -5369,7 +5381,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -5502,7 +5514,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(378),
+    [sym_primary_expression] = STATE(378),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -5638,7 +5650,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -5773,7 +5785,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -5908,7 +5920,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -6043,7 +6055,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -6177,7 +6189,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -6310,7 +6322,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -6443,7 +6455,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -6576,7 +6588,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -6709,7 +6721,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -6842,7 +6854,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -6975,7 +6987,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -7108,7 +7120,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -7241,7 +7253,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -7372,7 +7384,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -7503,7 +7515,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -7634,7 +7646,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -7765,7 +7777,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -7896,7 +7908,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -8027,7 +8039,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -8158,7 +8170,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -8289,7 +8301,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -8420,7 +8432,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -8551,7 +8563,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -8682,7 +8694,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -8813,7 +8825,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -8944,7 +8956,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -9075,7 +9087,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -9206,7 +9218,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -9337,7 +9349,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -9468,7 +9480,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -9599,7 +9611,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -9730,7 +9742,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -9861,7 +9873,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -9992,7 +10004,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -10123,7 +10135,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -10254,7 +10266,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -10385,7 +10397,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -10516,7 +10528,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -10647,7 +10659,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -10778,7 +10790,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -10909,7 +10921,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -11040,7 +11052,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -11171,7 +11183,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -11783,7 +11795,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -11872,7 +11884,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -12190,7 +12202,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -12266,7 +12278,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -12418,7 +12430,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -12494,7 +12506,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -12569,7 +12581,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -12644,7 +12656,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -12719,7 +12731,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -12793,7 +12805,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -12867,7 +12879,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -13015,7 +13027,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -13163,7 +13175,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -13237,7 +13249,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -13531,7 +13543,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -15502,7 +15514,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -16305,7 +16317,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -16451,7 +16463,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -16739,7 +16751,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -17747,7 +17759,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -17891,7 +17903,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -18035,7 +18047,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -18107,7 +18119,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -18251,7 +18263,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -18755,7 +18767,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -18899,7 +18911,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -19187,7 +19199,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -19547,7 +19559,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -19763,7 +19775,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -19835,7 +19847,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -20339,7 +20351,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -20411,7 +20423,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -20483,7 +20495,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -21059,7 +21071,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -21635,7 +21647,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -22427,7 +22439,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -22498,7 +22510,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -22569,7 +22581,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -22640,7 +22652,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -22711,7 +22723,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -22782,7 +22794,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -22853,7 +22865,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -22924,7 +22936,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -22995,7 +23007,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23066,7 +23078,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23137,7 +23149,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23208,7 +23220,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23279,7 +23291,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23350,7 +23362,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23421,7 +23433,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23492,7 +23504,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23563,7 +23575,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23634,7 +23646,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23705,7 +23717,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23776,7 +23788,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23847,7 +23859,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23918,7 +23930,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -23989,7 +24001,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -24060,7 +24072,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -24131,7 +24143,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -24202,7 +24214,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -24273,7 +24285,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -24344,7 +24356,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_ternary_expression] = STATE(367),
     [sym_unary_expression] = STATE(367),
     [sym_update_expression] = STATE(367),
-    [sym_primary] = STATE(302),
+    [sym_primary_expression] = STATE(302),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -24405,7 +24417,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
   },
   [225] = {
     [sym_literal] = STATE(293),
-    [sym_primary] = STATE(680),
+    [sym_primary_expression] = STATE(680),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -24545,7 +24557,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
   },
   [227] = {
     [sym_literal] = STATE(293),
-    [sym_primary] = STATE(680),
+    [sym_primary_expression] = STATE(680),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -24685,7 +24697,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
   },
   [229] = {
     [sym_literal] = STATE(293),
-    [sym_primary] = STATE(680),
+    [sym_primary_expression] = STATE(680),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -24823,7 +24835,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
   },
   [231] = {
     [sym_literal] = STATE(293),
-    [sym_primary] = STATE(680),
+    [sym_primary_expression] = STATE(680),
     [sym_array_creation_expression] = STATE(293),
     [sym_parenthesized_expression] = STATE(293),
     [sym_class_literal] = STATE(293),
@@ -39842,19 +39854,19 @@ static TSParseActionEntry ts_parse_actions[] = {
   [973] = {.entry = {.count = 2, .reusable = false}}, REDUCE(aux_sym_enum_body_declarations_repeat1, 2), SHIFT_REPEAT(466),
   [976] = {.entry = {.count = 1, .reusable = false}}, REDUCE(sym_unannotated_type, 1),
   [978] = {.entry = {.count = 1, .reusable = true}}, SHIFT(186),
-  [980] = {.entry = {.count = 1, .reusable = false}}, REDUCE(sym_primary, 1),
-  [982] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_primary, 1),
+  [980] = {.entry = {.count = 1, .reusable = false}}, REDUCE(sym_primary_expression, 1),
+  [982] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_primary_expression, 1),
   [984] = {.entry = {.count = 1, .reusable = false}}, SHIFT(224),
   [986] = {.entry = {.count = 1, .reusable = true}}, SHIFT(224),
-  [988] = {.entry = {.count = 2, .reusable = false}}, REDUCE(sym_primary, 1), SHIFT(387),
+  [988] = {.entry = {.count = 2, .reusable = false}}, REDUCE(sym_primary_expression, 1), SHIFT(387),
   [991] = {.entry = {.count = 1, .reusable = true}}, SHIFT(112),
-  [993] = {.entry = {.count = 2, .reusable = true}}, REDUCE(sym_primary, 1), REDUCE(sym_unannotated_type, 1),
-  [996] = {.entry = {.count = 3, .reusable = true}}, REDUCE(sym_primary, 1), REDUCE(sym_unannotated_type, 1), SHIFT(560),
+  [993] = {.entry = {.count = 2, .reusable = true}}, REDUCE(sym_primary_expression, 1), REDUCE(sym_unannotated_type, 1),
+  [996] = {.entry = {.count = 3, .reusable = true}}, REDUCE(sym_primary_expression, 1), REDUCE(sym_unannotated_type, 1), SHIFT(560),
   [1000] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_unannotated_type, 1),
-  [1002] = {.entry = {.count = 2, .reusable = false}}, REDUCE(sym_primary, 1), REDUCE(sym_unannotated_type, 1),
-  [1005] = {.entry = {.count = 3, .reusable = true}}, REDUCE(sym_primary, 1), REDUCE(sym_unannotated_type, 1), SHIFT(797),
+  [1002] = {.entry = {.count = 2, .reusable = false}}, REDUCE(sym_primary_expression, 1), REDUCE(sym_unannotated_type, 1),
+  [1005] = {.entry = {.count = 3, .reusable = true}}, REDUCE(sym_primary_expression, 1), REDUCE(sym_unannotated_type, 1), SHIFT(797),
   [1009] = {.entry = {.count = 1, .reusable = true}}, SHIFT(796),
-  [1011] = {.entry = {.count = 3, .reusable = false}}, REDUCE(sym_primary, 1), REDUCE(sym_unannotated_type, 1), SHIFT(560),
+  [1011] = {.entry = {.count = 3, .reusable = false}}, REDUCE(sym_primary_expression, 1), REDUCE(sym_unannotated_type, 1), SHIFT(560),
   [1015] = {.entry = {.count = 1, .reusable = false}}, SHIFT(458),
   [1017] = {.entry = {.count = 1, .reusable = true}}, SHIFT(243),
   [1019] = {.entry = {.count = 1, .reusable = true}}, SHIFT(108),
@@ -40528,25 +40540,28 @@ extern const TSLanguage *tree_sitter_java(void) {
     .symbol_count = SYMBOL_COUNT,
     .alias_count = ALIAS_COUNT,
     .token_count = TOKEN_COUNT,
+    .external_token_count = EXTERNAL_TOKEN_COUNT,
+    .state_count = STATE_COUNT,
     .large_state_count = LARGE_STATE_COUNT,
-    .symbol_metadata = ts_symbol_metadata,
-    .parse_table = (const unsigned short *)ts_parse_table,
+    .production_id_count = PRODUCTION_ID_COUNT,
+    .field_count = FIELD_COUNT,
+    .max_alias_sequence_length = MAX_ALIAS_SEQUENCE_LENGTH,
+    .parse_table = (const uint16_t *)ts_parse_table,
     .small_parse_table = (const uint16_t *)ts_small_parse_table,
     .small_parse_table_map = (const uint32_t *)ts_small_parse_table_map,
     .parse_actions = ts_parse_actions,
-    .lex_modes = ts_lex_modes,
     .symbol_names = ts_symbol_names,
-    .public_symbol_map = ts_symbol_map,
-    .alias_sequences = (const TSSymbol *)ts_alias_sequences,
-    .field_count = FIELD_COUNT,
     .field_names = ts_field_names,
     .field_map_slices = (const TSFieldMapSlice *)ts_field_map_slices,
     .field_map_entries = (const TSFieldMapEntry *)ts_field_map_entries,
-    .max_alias_sequence_length = MAX_ALIAS_SEQUENCE_LENGTH,
+    .symbol_metadata = ts_symbol_metadata,
+    .public_symbol_map = ts_symbol_map,
+    .alias_map = ts_non_terminal_alias_map,
+    .alias_sequences = (const TSSymbol *)ts_alias_sequences,
+    .lex_modes = ts_lex_modes,
     .lex_fn = ts_lex,
     .keyword_lex_fn = ts_lex_keywords,
     .keyword_capture_token = sym_identifier,
-    .external_token_count = EXTERNAL_TOKEN_COUNT,
   };
   return &language;
 }

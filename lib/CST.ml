@@ -32,7 +32,7 @@ type hex_integer_literal = Token.t
 type character_literal = Token.t
 [@@deriving sexp_of]
 
-type identifier = Token.t (* pattern [a-zA-Z_]\w* *)
+type identifier = Token.t (* pattern [A-Za-z_$][A-Za-z0-9_$]* *)
 [@@deriving sexp_of]
 
 type reserved_identifier = [
@@ -204,8 +204,8 @@ and anon_choice_formal_param_3e261ef = [
     )
 ]
 
-and anon_choice_prim_a6616f6 = [
-    `Prim of primary
+and anon_choice_prim_exp_bbf4eda = [
+    `Prim_exp of primary_expression
   | `Super of Token.t (* "super" *)
 ]
 
@@ -230,7 +230,7 @@ and argument_list = (
 )
 
 and array_access = (
-    primary * Token.t (* "[" *) * expression * Token.t (* "]" *)
+    primary_expression * Token.t (* "[" *) * expression * Token.t (* "]" *)
 )
 
 and array_initializer = (
@@ -457,8 +457,8 @@ and explicit_constructor_invocation = (
               | `Super of Token.t (* "super" *)
             ]
         )
-      | `Choice_prim_DOT_opt_type_args_super of (
-            [ `Prim of primary ]
+      | `Choice_prim_exp_DOT_opt_type_args_super of (
+            [ `Prim_exp of primary_expression ]
           * Token.t (* "." *)
           * type_arguments option
           * Token.t (* "super" *)
@@ -508,7 +508,7 @@ and expression = [
       * expression
     )
   | `Update_exp of update_expression
-  | `Prim of primary
+  | `Prim_exp of primary_expression
   | `Un_exp of unary_expression
   | `Cast_exp of (
         Token.t (* "(" *)
@@ -522,7 +522,7 @@ and expression = [
 and extends_interfaces = (Token.t (* "extends" *) * interface_type_list)
 
 and field_access = (
-    anon_choice_prim_a6616f6
+    anon_choice_prim_exp_bbf4eda
   * (Token.t (* "." *) * Token.t (* "super" *)) option
   * Token.t (* "." *)
   * [
@@ -626,8 +626,9 @@ and modifiers =
 
 and object_creation_expression = [
     `Unqu_obj_crea_exp of unqualified_object_creation_expression
-  | `Prim_DOT_unqu_obj_crea_exp of (
-        primary * Token.t (* "." *) * unqualified_object_creation_expression
+  | `Prim_exp_DOT_unqu_obj_crea_exp of (
+        primary_expression * Token.t (* "." *)
+      * unqualified_object_creation_expression
     )
 ]
 
@@ -635,7 +636,7 @@ and parenthesized_expression = (
     Token.t (* "(" *) * expression * Token.t (* ")" *)
 )
 
-and primary = [
+and primary_expression = [
     `Lit of literal
   | `Class_lit of (
         unannotated_type * Token.t (* "." *) * Token.t (* "class" *)
@@ -650,8 +651,8 @@ and primary = [
   | `Meth_invo of (
         [
             `Choice_id of anon_choice_id_0e59f50
-          | `Choice_prim_DOT_opt_super_DOT_opt_type_args_choice_id of (
-                anon_choice_prim_a6616f6
+          | `Choice_prim_exp_DOT_opt_super_DOT_opt_type_args_choice_id of (
+                anon_choice_prim_exp_bbf4eda
               * Token.t (* "." *)
               * (Token.t (* "super" *) * Token.t (* "." *)) option
               * type_arguments option
@@ -663,7 +664,7 @@ and primary = [
   | `Meth_ref of (
         [
             `Type of type_
-          | `Prim of primary
+          | `Prim_exp of primary_expression
           | `Super of Token.t (* "super" *)
         ]
       * Token.t (* "::" *)
@@ -1163,8 +1164,8 @@ type lambda_expression (* inlined *) = (
 type method_invocation (* inlined *) = (
     [
         `Choice_id of anon_choice_id_0e59f50
-      | `Choice_prim_DOT_opt_super_DOT_opt_type_args_choice_id of (
-            anon_choice_prim_a6616f6
+      | `Choice_prim_exp_DOT_opt_super_DOT_opt_type_args_choice_id of (
+            anon_choice_prim_exp_bbf4eda
           * Token.t (* "." *)
           * (Token.t (* "super" *) * Token.t (* "." *)) option
           * type_arguments option
@@ -1176,7 +1177,11 @@ type method_invocation (* inlined *) = (
 [@@deriving sexp_of]
 
 type method_reference (* inlined *) = (
-    [ `Type of type_ | `Prim of primary | `Super of Token.t (* "super" *) ]
+    [
+        `Type of type_
+      | `Prim_exp of primary_expression
+      | `Super of Token.t (* "super" *)
+    ]
   * Token.t (* "::" *)
   * type_arguments option
   * [ `New of Token.t (* "new" *) | `Id of identifier (*tok*) ]

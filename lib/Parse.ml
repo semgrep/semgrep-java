@@ -446,7 +446,7 @@ let children_regexps : (string * Run.exp option) list = [
   "array_access",
   Some (
     Seq [
-      Token (Name "primary");
+      Token (Name "primary_expression");
       Token (Literal "[");
       Token (Name "expression");
       Token (Literal "]");
@@ -1007,7 +1007,7 @@ let children_regexps : (string * Run.exp option) list = [
         ];
         Seq [
           Alt [|
-            Token (Name "primary");
+            Token (Name "primary_expression");
           |];
           Token (Literal ".");
           Opt (
@@ -1029,7 +1029,7 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "lambda_expression");
       Token (Name "ternary_expression");
       Token (Name "update_expression");
-      Token (Name "primary");
+      Token (Name "primary_expression");
       Token (Name "unary_expression");
       Token (Name "cast_expression");
     |];
@@ -1052,7 +1052,7 @@ let children_regexps : (string * Run.exp option) list = [
   Some (
     Seq [
       Alt [|
-        Token (Name "primary");
+        Token (Name "primary_expression");
         Token (Name "super");
       |];
       Opt (
@@ -1341,7 +1341,7 @@ let children_regexps : (string * Run.exp option) list = [
         |];
         Seq [
           Alt [|
-            Token (Name "primary");
+            Token (Name "primary_expression");
             Token (Name "super");
           |];
           Token (Literal ".");
@@ -1371,7 +1371,7 @@ let children_regexps : (string * Run.exp option) list = [
     Seq [
       Alt [|
         Token (Name "type");
-        Token (Name "primary");
+        Token (Name "primary_expression");
         Token (Name "super");
       |];
       Token (Literal "::");
@@ -1430,7 +1430,7 @@ let children_regexps : (string * Run.exp option) list = [
     Alt [|
       Token (Name "unqualified_object_creation_expression");
       Seq [
-        Token (Name "primary");
+        Token (Name "primary_expression");
         Token (Literal ".");
         Token (Name "unqualified_object_creation_expression");
       ];
@@ -1462,7 +1462,7 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal ")");
     ];
   );
-  "primary",
+  "primary_expression",
   Some (
     Alt [|
       Token (Name "literal");
@@ -3010,7 +3010,7 @@ and trans_array_access ((kind, body) : mt) : CST.array_access =
       (match v with
       | Seq [v0; v1; v2; v3] ->
           (
-            trans_primary (Run.matcher_token v0),
+            trans_primary_expression (Run.matcher_token v0),
             Run.trans_token (Run.matcher_token v1),
             trans_expression (Run.matcher_token v2),
             Run.trans_token (Run.matcher_token v3)
@@ -4203,14 +4203,14 @@ and trans_explicit_constructor_invocation ((kind, body) : mt) : CST.explicit_con
                   )
                 )
             | Alt (1, v) ->
-                `Choice_prim_DOT_opt_type_args_super (
+                `Choice_prim_exp_DOT_opt_type_args_super (
                   (match v with
                   | Seq [v0; v1; v2; v3] ->
                       (
                         (match v0 with
                         | Alt (0, v) ->
-                            `Prim (
-                              trans_primary (Run.matcher_token v)
+                            `Prim_exp (
+                              trans_primary_expression (Run.matcher_token v)
                             )
                         | _ -> assert false
                         )
@@ -4264,8 +4264,8 @@ and trans_expression ((kind, body) : mt) : CST.expression =
             trans_update_expression (Run.matcher_token v)
           )
       | Alt (6, v) ->
-          `Prim (
-            trans_primary (Run.matcher_token v)
+          `Prim_exp (
+            trans_primary_expression (Run.matcher_token v)
           )
       | Alt (7, v) ->
           `Un_exp (
@@ -4313,8 +4313,8 @@ and trans_field_access ((kind, body) : mt) : CST.field_access =
           (
             (match v0 with
             | Alt (0, v) ->
-                `Prim (
-                  trans_primary (Run.matcher_token v)
+                `Prim_exp (
+                  trans_primary_expression (Run.matcher_token v)
                 )
             | Alt (1, v) ->
                 `Super (
@@ -4924,14 +4924,14 @@ and trans_method_invocation ((kind, body) : mt) : CST.method_invocation =
                   )
                 )
             | Alt (1, v) ->
-                `Choice_prim_DOT_opt_super_DOT_opt_type_args_choice_id (
+                `Choice_prim_exp_DOT_opt_super_DOT_opt_type_args_choice_id (
                   (match v with
                   | Seq [v0; v1; v2; v3; v4] ->
                       (
                         (match v0 with
                         | Alt (0, v) ->
-                            `Prim (
-                              trans_primary (Run.matcher_token v)
+                            `Prim_exp (
+                              trans_primary_expression (Run.matcher_token v)
                             )
                         | Alt (1, v) ->
                             `Super (
@@ -5004,8 +5004,8 @@ and trans_method_reference ((kind, body) : mt) : CST.method_reference =
                   trans_type_ (Run.matcher_token v)
                 )
             | Alt (1, v) ->
-                `Prim (
-                  trans_primary (Run.matcher_token v)
+                `Prim_exp (
+                  trans_primary_expression (Run.matcher_token v)
                 )
             | Alt (2, v) ->
                 `Super (
@@ -5155,11 +5155,11 @@ and trans_object_creation_expression ((kind, body) : mt) : CST.object_creation_e
             trans_unqualified_object_creation_expression (Run.matcher_token v)
           )
       | Alt (1, v) ->
-          `Prim_DOT_unqu_obj_crea_exp (
+          `Prim_exp_DOT_unqu_obj_crea_exp (
             (match v with
             | Seq [v0; v1; v2] ->
                 (
-                  trans_primary (Run.matcher_token v0),
+                  trans_primary_expression (Run.matcher_token v0),
                   Run.trans_token (Run.matcher_token v1),
                   trans_unqualified_object_creation_expression (Run.matcher_token v2)
                 )
@@ -5227,7 +5227,7 @@ and trans_parenthesized_expression ((kind, body) : mt) : CST.parenthesized_expre
       )
   | Leaf _ -> assert false
 
-and trans_primary ((kind, body) : mt) : CST.primary =
+and trans_primary_expression ((kind, body) : mt) : CST.primary_expression =
   match body with
   | Children v ->
       (match v with
