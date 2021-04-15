@@ -32,7 +32,7 @@ type hex_integer_literal = Token.t
 type character_literal = Token.t
 [@@deriving sexp_of]
 
-type identifier = Token.t (* pattern [A-Za-z_$][A-Za-z0-9_$]* *)
+type identifier = Token.t (* pattern [\p{L}_$][\p{L}\p{Nd}_$]* *)
 [@@deriving sexp_of]
 
 type reserved_identifier = [
@@ -257,9 +257,9 @@ and assert_statement = [
 and binary_expression = [
     `Exp_GT_exp of (expression * Token.t (* ">" *) * expression)
   | `Exp_LT_exp of (expression * Token.t (* "<" *) * expression)
-  | `Exp_EQEQ_exp of (expression * Token.t (* "==" *) * expression)
   | `Exp_GTEQ_exp of (expression * Token.t (* ">=" *) * expression)
   | `Exp_LTEQ_exp of (expression * Token.t (* "<=" *) * expression)
+  | `Exp_EQEQ_exp of (expression * Token.t (* "==" *) * expression)
   | `Exp_BANGEQ_exp of (expression * Token.t (* "!=" *) * expression)
   | `Exp_AMPAMP_exp of (expression * Token.t (* "&&" *) * expression)
   | `Exp_BARBAR_exp of (expression * Token.t (* "||" *) * expression)
@@ -306,6 +306,13 @@ and class_body_declaration = [
       * unannotated_type
       * variable_declarator_list
       * Token.t (* ";" *)
+    )
+  | `Record_decl of (
+        modifiers option
+      * Token.t (* "record" *)
+      * identifier (*tok*)
+      * formal_parameters
+      * class_body
     )
   | `Meth_decl of method_declaration
   | `Class_decl of class_declaration
@@ -1202,6 +1209,15 @@ type package_declaration (* inlined *) = (
   * Token.t (* "package" *)
   * name
   * Token.t (* ";" *)
+)
+[@@deriving sexp_of]
+
+type record_declaration (* inlined *) = (
+    modifiers option
+  * Token.t (* "record" *)
+  * identifier (*tok*)
+  * formal_parameters
+  * class_body
 )
 [@@deriving sexp_of]
 

@@ -576,17 +576,17 @@ let children_regexps : (string * Run.exp option) list = [
       ];
       Seq [
         Token (Name "expression");
-        Token (Literal "==");
-        Token (Name "expression");
-      ];
-      Seq [
-        Token (Name "expression");
         Token (Literal ">=");
         Token (Name "expression");
       ];
       Seq [
         Token (Name "expression");
         Token (Literal "<=");
+        Token (Name "expression");
+      ];
+      Seq [
+        Token (Name "expression");
+        Token (Literal "==");
         Token (Name "expression");
       ];
       Seq [
@@ -725,6 +725,7 @@ let children_regexps : (string * Run.exp option) list = [
       Repeat (
         Alt [|
           Token (Name "field_declaration");
+          Token (Name "record_declaration");
           Token (Name "method_declaration");
           Token (Name "class_declaration");
           Token (Name "interface_declaration");
@@ -950,6 +951,7 @@ let children_regexps : (string * Run.exp option) list = [
       Repeat (
         Alt [|
           Token (Name "field_declaration");
+          Token (Name "record_declaration");
           Token (Name "method_declaration");
           Token (Name "class_declaration");
           Token (Name "interface_declaration");
@@ -1496,6 +1498,18 @@ let children_regexps : (string * Run.exp option) list = [
         ];
       );
       Token (Name "this");
+    ];
+  );
+  "record_declaration",
+  Some (
+    Seq [
+      Opt (
+        Token (Name "modifiers");
+      );
+      Token (Literal "record");
+      Token (Name "identifier");
+      Token (Name "formal_parameters");
+      Token (Name "class_body");
     ];
   );
   "resource",
@@ -3325,18 +3339,6 @@ and trans_binary_expression ((kind, body) : mt) : CST.binary_expression =
             )
           )
       | Alt (2, v) ->
-          `Exp_EQEQ_exp (
-            (match v with
-            | Seq [v0; v1; v2] ->
-                (
-                  trans_expression (Run.matcher_token v0),
-                  Run.trans_token (Run.matcher_token v1),
-                  trans_expression (Run.matcher_token v2)
-                )
-            | _ -> assert false
-            )
-          )
-      | Alt (3, v) ->
           `Exp_GTEQ_exp (
             (match v with
             | Seq [v0; v1; v2] ->
@@ -3348,8 +3350,20 @@ and trans_binary_expression ((kind, body) : mt) : CST.binary_expression =
             | _ -> assert false
             )
           )
-      | Alt (4, v) ->
+      | Alt (3, v) ->
           `Exp_LTEQ_exp (
+            (match v with
+            | Seq [v0; v1; v2] ->
+                (
+                  trans_expression (Run.matcher_token v0),
+                  Run.trans_token (Run.matcher_token v1),
+                  trans_expression (Run.matcher_token v2)
+                )
+            | _ -> assert false
+            )
+          )
+      | Alt (4, v) ->
+          `Exp_EQEQ_exp (
             (match v with
             | Seq [v0; v1; v2] ->
                 (
@@ -3649,38 +3663,42 @@ and trans_class_body ((kind, body) : mt) : CST.class_body =
                       trans_field_declaration (Run.matcher_token v)
                     )
                 | Alt (1, v) ->
+                    `Record_decl (
+                      trans_record_declaration (Run.matcher_token v)
+                    )
+                | Alt (2, v) ->
                     `Meth_decl (
                       trans_method_declaration (Run.matcher_token v)
                     )
-                | Alt (2, v) ->
+                | Alt (3, v) ->
                     `Class_decl (
                       trans_class_declaration (Run.matcher_token v)
                     )
-                | Alt (3, v) ->
+                | Alt (4, v) ->
                     `Inte_decl (
                       trans_interface_declaration (Run.matcher_token v)
                     )
-                | Alt (4, v) ->
+                | Alt (5, v) ->
                     `Anno_type_decl (
                       trans_annotation_type_declaration (Run.matcher_token v)
                     )
-                | Alt (5, v) ->
+                | Alt (6, v) ->
                     `Enum_decl (
                       trans_enum_declaration (Run.matcher_token v)
                     )
-                | Alt (6, v) ->
+                | Alt (7, v) ->
                     `Blk (
                       trans_block (Run.matcher_token v)
                     )
-                | Alt (7, v) ->
+                | Alt (8, v) ->
                     `Static_init (
                       trans_static_initializer (Run.matcher_token v)
                     )
-                | Alt (8, v) ->
+                | Alt (9, v) ->
                     `Cons_decl (
                       trans_constructor_declaration (Run.matcher_token v)
                     )
-                | Alt (9, v) ->
+                | Alt (10, v) ->
                     `SEMI (
                       Run.trans_token (Run.matcher_token v)
                     )
@@ -4082,38 +4100,42 @@ and trans_enum_body_declarations ((kind, body) : mt) : CST.enum_body_declaration
                       trans_field_declaration (Run.matcher_token v)
                     )
                 | Alt (1, v) ->
+                    `Record_decl (
+                      trans_record_declaration (Run.matcher_token v)
+                    )
+                | Alt (2, v) ->
                     `Meth_decl (
                       trans_method_declaration (Run.matcher_token v)
                     )
-                | Alt (2, v) ->
+                | Alt (3, v) ->
                     `Class_decl (
                       trans_class_declaration (Run.matcher_token v)
                     )
-                | Alt (3, v) ->
+                | Alt (4, v) ->
                     `Inte_decl (
                       trans_interface_declaration (Run.matcher_token v)
                     )
-                | Alt (4, v) ->
+                | Alt (5, v) ->
                     `Anno_type_decl (
                       trans_annotation_type_declaration (Run.matcher_token v)
                     )
-                | Alt (5, v) ->
+                | Alt (6, v) ->
                     `Enum_decl (
                       trans_enum_declaration (Run.matcher_token v)
                     )
-                | Alt (6, v) ->
+                | Alt (7, v) ->
                     `Blk (
                       trans_block (Run.matcher_token v)
                     )
-                | Alt (7, v) ->
+                | Alt (8, v) ->
                     `Static_init (
                       trans_static_initializer (Run.matcher_token v)
                     )
-                | Alt (8, v) ->
+                | Alt (9, v) ->
                     `Cons_decl (
                       trans_constructor_declaration (Run.matcher_token v)
                     )
-                | Alt (9, v) ->
+                | Alt (10, v) ->
                     `SEMI (
                       Run.trans_token (Run.matcher_token v)
                     )
@@ -5318,6 +5340,25 @@ and trans_receiver_parameter ((kind, body) : mt) : CST.receiver_parameter =
               v2
             ,
             trans_this (Run.matcher_token v3)
+          )
+      | _ -> assert false
+      )
+  | Leaf _ -> assert false
+
+and trans_record_declaration ((kind, body) : mt) : CST.record_declaration =
+  match body with
+  | Children v ->
+      (match v with
+      | Seq [v0; v1; v2; v3; v4] ->
+          (
+            Run.opt
+              (fun v -> trans_modifiers (Run.matcher_token v))
+              v0
+            ,
+            Run.trans_token (Run.matcher_token v1),
+            trans_identifier (Run.matcher_token v2),
+            trans_formal_parameters (Run.matcher_token v3),
+            trans_class_body (Run.matcher_token v4)
           )
       | _ -> assert false
       )
