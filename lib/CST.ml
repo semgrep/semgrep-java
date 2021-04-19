@@ -524,7 +524,10 @@ and expression = [
       * Token.t (* ")" *)
       * expression
     )
+  | `Switch_exp of switch_expression
 ]
+
+and expression_statement = (expression * Token.t (* ";" *))
 
 and extends_interfaces = (Token.t (* "extends" *) * interface_type_list)
 
@@ -743,7 +746,7 @@ and simple_type = [
 
 and statement = [
     `Decl of declaration
-  | `Exp_stmt of (expression * Token.t (* ";" *))
+  | `Exp_stmt of expression_statement
   | `Labe_stmt of (identifier (*tok*) * Token.t (* ":" *) * statement)
   | `If_stmt of (
         Token.t (* "if" *)
@@ -784,9 +787,6 @@ and statement = [
   | `Blk of block
   | `SEMI of Token.t (* ";" *)
   | `Assert_stmt of assert_statement
-  | `Switch_stmt of (
-        Token.t (* "switch" *) * parenthesized_expression * switch_block
-    )
   | `Do_stmt of (
         Token.t (* "do" *) * statement * Token.t (* "while" *)
       * parenthesized_expression * Token.t (* ";" *)
@@ -806,11 +806,13 @@ and statement = [
       * expression option
       * Token.t (* ";" *)
     )
+  | `Yield_stmt of (Token.t (* "yield" *) * expression * Token.t (* ";" *))
+  | `Switch_exp of switch_expression
   | `Sync_stmt of (
         Token.t (* "synchronized" *) * parenthesized_expression * block
     )
   | `Local_var_decl of local_variable_declaration
-  | `Throw_stmt of (Token.t (* "throw" *) * expression * Token.t (* ";" *))
+  | `Throw_stmt of throw_statement
   | `Try_stmt of (
         Token.t (* "try" *)
       * block
@@ -837,17 +839,45 @@ and superclass = (Token.t (* "extends" *) * type_)
 
 and switch_block = (
     Token.t (* "{" *)
-  * [ `Switch_label of switch_label | `Stmt of statement ]
-      list (* zero or more *)
+  * [
+        `Rep_switch_blk_stmt_group of
+          switch_block_statement_group list (* zero or more *)
+      | `Rep_switch_rule of switch_rule list (* zero or more *)
+    ]
   * Token.t (* "}" *)
 )
 
+and switch_block_statement_group = (
+    (switch_label * Token.t (* ":" *)) list (* one or more *)
+  * program
+)
+
+and switch_expression = (
+    Token.t (* "switch" *) * parenthesized_expression * switch_block
+)
+
 and switch_label = [
-    `Case_exp_COLON of (
-        Token.t (* "case" *) * expression * Token.t (* ":" *)
+    `Case_exp_rep_COMMA_exp of (
+        Token.t (* "case" *)
+      * expression
+      * (Token.t (* "," *) * expression) list (* zero or more *)
     )
-  | `Defa_COLON of (Token.t (* "default" *) * Token.t (* ":" *))
+  | `Defa of Token.t (* "default" *)
 ]
+
+and switch_rule = (
+    switch_label
+  * Token.t (* "->" *)
+  * [
+        `Exp_stmt of expression_statement
+      | `Throw_stmt of throw_statement
+      | `Blk of block
+    ]
+)
+
+and throw_statement = (
+    Token.t (* "throw" *) * expression * Token.t (* ";" *)
+)
 
 and throws = (
     Token.t (* "throws" *)
@@ -1103,9 +1133,6 @@ type enhanced_for_statement (* inlined *) = (
 )
 [@@deriving sexp_of]
 
-type expression_statement (* inlined *) = (expression * Token.t (* ";" *))
-[@@deriving sexp_of]
-
 type field_declaration (* inlined *) = (
     modifiers option
   * unannotated_type
@@ -1239,11 +1266,6 @@ type spread_parameter (* inlined *) = (
 type static_initializer (* inlined *) = (Token.t (* "static" *) * block)
 [@@deriving sexp_of]
 
-type switch_statement (* inlined *) = (
-    Token.t (* "switch" *) * parenthesized_expression * switch_block
-)
-[@@deriving sexp_of]
-
 type synchronized_statement (* inlined *) = (
     Token.t (* "synchronized" *) * parenthesized_expression * block
 )
@@ -1252,11 +1274,6 @@ type synchronized_statement (* inlined *) = (
 type ternary_expression (* inlined *) = (
     expression * Token.t (* "?" *) * expression * Token.t (* ":" *)
   * expression
-)
-[@@deriving sexp_of]
-
-type throw_statement (* inlined *) = (
-    Token.t (* "throw" *) * expression * Token.t (* ";" *)
 )
 [@@deriving sexp_of]
 
@@ -1291,6 +1308,11 @@ type wildcard (* inlined *) = (
     annotation list (* zero or more *)
   * Token.t (* "?" *)
   * wildcard_bounds option
+)
+[@@deriving sexp_of]
+
+type yield_statement (* inlined *) = (
+    Token.t (* "yield" *) * expression * Token.t (* ";" *)
 )
 [@@deriving sexp_of]
 

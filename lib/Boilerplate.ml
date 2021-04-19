@@ -952,7 +952,13 @@ and map_expression (env : env) (x : CST.expression) =
       let v4 = token env v4 (* ")" *) in
       let v5 = map_expression env v5 in
       todo env (v1, v2, v3, v4, v5)
+  | `Switch_exp x -> map_switch_expression env x
   )
+
+and map_expression_statement (env : env) ((v1, v2) : CST.expression_statement) =
+  let v1 = map_expression env v1 in
+  let v2 = token env v2 (* ";" *) in
+  todo env (v1, v2)
 
 and map_extends_interfaces (env : env) ((v1, v2) : CST.extends_interfaces) =
   let v1 = token env v1 (* "extends" *) in
@@ -1336,10 +1342,7 @@ and map_simple_type (env : env) (x : CST.simple_type) =
 and map_statement (env : env) (x : CST.statement) =
   (match x with
   | `Decl x -> map_declaration env x
-  | `Exp_stmt (v1, v2) ->
-      let v1 = map_expression env v1 in
-      let v2 = token env v2 (* ";" *) in
-      todo env (v1, v2)
+  | `Exp_stmt x -> map_expression_statement env x
   | `Labe_stmt (v1, v2, v3) ->
       let v1 =
         token env v1 (* pattern [\p{L}_$][\p{L}\p{Nd}_$]* *)
@@ -1413,11 +1416,6 @@ and map_statement (env : env) (x : CST.statement) =
   | `Blk x -> map_block env x
   | `SEMI tok -> token env tok (* ";" *)
   | `Assert_stmt x -> map_assert_statement env x
-  | `Switch_stmt (v1, v2, v3) ->
-      let v1 = token env v1 (* "switch" *) in
-      let v2 = map_parenthesized_expression env v2 in
-      let v3 = map_switch_block env v3 in
-      todo env (v1, v2, v3)
   | `Do_stmt (v1, v2, v3, v4, v5) ->
       let v1 = token env v1 (* "do" *) in
       let v2 = map_statement env v2 in
@@ -1454,17 +1452,19 @@ and map_statement (env : env) (x : CST.statement) =
       in
       let v3 = token env v3 (* ";" *) in
       todo env (v1, v2, v3)
+  | `Yield_stmt (v1, v2, v3) ->
+      let v1 = token env v1 (* "yield" *) in
+      let v2 = map_expression env v2 in
+      let v3 = token env v3 (* ";" *) in
+      todo env (v1, v2, v3)
+  | `Switch_exp x -> map_switch_expression env x
   | `Sync_stmt (v1, v2, v3) ->
       let v1 = token env v1 (* "synchronized" *) in
       let v2 = map_parenthesized_expression env v2 in
       let v3 = map_block env v3 in
       todo env (v1, v2, v3)
   | `Local_var_decl x -> map_local_variable_declaration env x
-  | `Throw_stmt (v1, v2, v3) ->
-      let v1 = token env v1 (* "throw" *) in
-      let v2 = map_expression env v2 in
-      let v3 = token env v3 (* ";" *) in
-      todo env (v1, v2, v3)
+  | `Throw_stmt x -> map_throw_statement env x
   | `Try_stmt (v1, v2, v3) ->
       let v1 = token env v1 (* "try" *) in
       let v2 = map_block env v2 in
@@ -1505,28 +1505,65 @@ and map_superclass (env : env) ((v1, v2) : CST.superclass) =
 and map_switch_block (env : env) ((v1, v2, v3) : CST.switch_block) =
   let v1 = token env v1 (* "{" *) in
   let v2 =
-    List.map (fun x ->
-      (match x with
-      | `Switch_label x -> map_switch_label env x
-      | `Stmt x -> map_statement env x
-      )
-    ) v2
+    (match v2 with
+    | `Rep_switch_blk_stmt_group xs ->
+        List.map (map_switch_block_statement_group env) xs
+    | `Rep_switch_rule xs -> List.map (map_switch_rule env) xs
+    )
   in
   let v3 = token env v3 (* "}" *) in
   todo env (v1, v2, v3)
 
-and map_switch_label (env : env) (x : CST.switch_label) =
-  (match x with
-  | `Case_exp_COLON (v1, v2, v3) ->
-      let v1 = token env v1 (* "case" *) in
-      let v2 = map_expression env v2 in
-      let v3 = token env v3 (* ":" *) in
-      todo env (v1, v2, v3)
-  | `Defa_COLON (v1, v2) ->
-      let v1 = token env v1 (* "default" *) in
+and map_switch_block_statement_group (env : env) ((v1, v2) : CST.switch_block_statement_group) =
+  let v1 =
+    List.map (fun (v1, v2) ->
+      let v1 = map_switch_label env v1 in
       let v2 = token env v2 (* ":" *) in
       todo env (v1, v2)
+    ) v1
+  in
+  let v2 = map_program env v2 in
+  todo env (v1, v2)
+
+and map_switch_expression (env : env) ((v1, v2, v3) : CST.switch_expression) =
+  let v1 = token env v1 (* "switch" *) in
+  let v2 = map_parenthesized_expression env v2 in
+  let v3 = map_switch_block env v3 in
+  todo env (v1, v2, v3)
+
+and map_switch_label (env : env) (x : CST.switch_label) =
+  (match x with
+  | `Case_exp_rep_COMMA_exp (v1, v2, v3) ->
+      let v1 = token env v1 (* "case" *) in
+      let v2 = map_expression env v2 in
+      let v3 =
+        List.map (fun (v1, v2) ->
+          let v1 = token env v1 (* "," *) in
+          let v2 = map_expression env v2 in
+          todo env (v1, v2)
+        ) v3
+      in
+      todo env (v1, v2, v3)
+  | `Defa tok -> token env tok (* "default" *)
   )
+
+and map_switch_rule (env : env) ((v1, v2, v3) : CST.switch_rule) =
+  let v1 = map_switch_label env v1 in
+  let v2 = token env v2 (* "->" *) in
+  let v3 =
+    (match v3 with
+    | `Exp_stmt x -> map_expression_statement env x
+    | `Throw_stmt x -> map_throw_statement env x
+    | `Blk x -> map_block env x
+    )
+  in
+  todo env (v1, v2, v3)
+
+and map_throw_statement (env : env) ((v1, v2, v3) : CST.throw_statement) =
+  let v1 = token env v1 (* "throw" *) in
+  let v2 = map_expression env v2 in
+  let v3 = token env v3 (* ";" *) in
+  todo env (v1, v2, v3)
 
 and map_throws (env : env) ((v1, v2, v3) : CST.throws) =
   let v1 = token env v1 (* "throws" *) in
