@@ -8,6 +8,30 @@
 open! Sexplib.Conv
 open Tree_sitter_run
 
+type line_comment = Token.t
+[@@deriving sexp_of]
+
+type identifier = Token.t (* pattern [\p{L}_$][\p{L}\p{Nd}_$]* *)
+[@@deriving sexp_of]
+
+type requires_modifier = [
+    `Tran of Token.t (* "transitive" *)
+  | `Static of Token.t (* "static" *)
+]
+[@@deriving sexp_of]
+
+type hex_integer_literal = Token.t
+[@@deriving sexp_of]
+
+type binary_integer_literal = Token.t
+[@@deriving sexp_of]
+
+type block_comment = Token.t
+[@@deriving sexp_of]
+
+type hex_floating_point_literal = Token.t
+[@@deriving sexp_of]
+
 type integral_type = [
     `Byte of Token.t (* "byte" *)
   | `Short of Token.t (* "short" *)
@@ -17,40 +41,7 @@ type integral_type = [
 ]
 [@@deriving sexp_of]
 
-type string_literal = Token.t
-[@@deriving sexp_of]
-
-type octal_integer_literal = Token.t
-[@@deriving sexp_of]
-
-type binary_integer_literal = Token.t
-[@@deriving sexp_of]
-
-type hex_integer_literal = Token.t
-[@@deriving sexp_of]
-
-type character_literal = Token.t
-[@@deriving sexp_of]
-
-type identifier = Token.t (* pattern [\p{L}_$][\p{L}\p{Nd}_$]* *)
-[@@deriving sexp_of]
-
-type reserved_identifier = [
-    `Open of Token.t (* "open" *)
-  | `Module of Token.t (* "module" *)
-]
-[@@deriving sexp_of]
-
-type requires_modifier = [
-    `Tran of Token.t (* "transitive" *)
-  | `Static of Token.t (* "static" *)
-]
-[@@deriving sexp_of]
-
-type decimal_integer_literal = Token.t
-[@@deriving sexp_of]
-
-type decimal_floating_point_literal = Token.t
+type text_block = Token.t
 [@@deriving sexp_of]
 
 type floating_point_type = [
@@ -59,7 +50,25 @@ type floating_point_type = [
 ]
 [@@deriving sexp_of]
 
-type hex_floating_point_literal = Token.t
+type decimal_floating_point_literal = Token.t
+[@@deriving sexp_of]
+
+type decimal_integer_literal = Token.t
+[@@deriving sexp_of]
+
+type reserved_identifier = [
+    `Open of Token.t (* "open" *)
+  | `Module of Token.t (* "module" *)
+]
+[@@deriving sexp_of]
+
+type character_literal = Token.t
+[@@deriving sexp_of]
+
+type string_literal = Token.t
+[@@deriving sexp_of]
+
+type octal_integer_literal = Token.t
 [@@deriving sexp_of]
 
 type inferred_parameters = (
@@ -94,42 +103,47 @@ type literal = [
   | `False of Token.t (* "false" *)
   | `Char_lit of character_literal (*tok*)
   | `Str_lit of string_literal (*tok*)
+  | `Text_blk of text_block (*tok*)
   | `Null_lit of Token.t (* "null" *)
 ]
 [@@deriving sexp_of]
 
-type module_directive = (
-    [
-        `Requis_rep_requis_modi_choice_id of (
-            Token.t (* "requires" *)
-          * requires_modifier list (* zero or more *)
-          * name
-        )
-      | `Exports_choice_id_opt_to_opt_choice_id_rep_COMMA_choice_id of (
-            Token.t (* "exports" *)
-          * name
-          * Token.t (* "to" *) option
-          * name option
-          * (Token.t (* "," *) * name) list (* zero or more *)
-        )
-      | `Opens_choice_id_opt_to_opt_choice_id_rep_COMMA_choice_id of (
-            Token.t (* "opens" *)
-          * name
-          * Token.t (* "to" *) option
-          * name option
-          * (Token.t (* "," *) * name) list (* zero or more *)
-        )
-      | `Uses_choice_id of (Token.t (* "uses" *) * name)
-      | `Provis_choice_id_with_choice_id_rep_COMMA_choice_id of (
-            Token.t (* "provides" *)
-          * name
-          * Token.t (* "with" *)
-          * name
-          * (Token.t (* "," *) * name) list (* zero or more *)
-        )
-    ]
-  * Token.t (* ";" *)
+type anon_to_name_rep_COMMA_name_2956291 = (
+    Token.t (* "to" *)
+  * name
+  * (Token.t (* "," *) * name) list (* zero or more *)
 )
+[@@deriving sexp_of]
+
+type module_directive = [
+    `Requis_module_dire of (
+        Token.t (* "requires" *)
+      * requires_modifier list (* zero or more *)
+      * name
+      * Token.t (* ";" *)
+    )
+  | `Exports_module_dire of (
+        Token.t (* "exports" *)
+      * name
+      * anon_to_name_rep_COMMA_name_2956291 option
+      * Token.t (* ";" *)
+    )
+  | `Opens_module_dire of (
+        Token.t (* "opens" *)
+      * name
+      * anon_to_name_rep_COMMA_name_2956291 option
+      * Token.t (* ";" *)
+    )
+  | `Uses_module_dire of (Token.t (* "uses" *) * name * Token.t (* ";" *))
+  | `Provis_module_dire of (
+        Token.t (* "provides" *)
+      * name
+      * Token.t (* "with" *)
+      * name
+      * (Token.t (* "," *) * name) list (* zero or more *)
+      * Token.t (* ";" *)
+    )
+]
 [@@deriving sexp_of]
 
 type module_body = (
@@ -337,6 +351,7 @@ and class_declaration = (
   * type_parameters option
   * superclass option
   * super_interfaces option
+  * permits option
   * class_body
 )
 
@@ -529,7 +544,7 @@ and expression = [
 
 and expression_statement = (expression * Token.t (* ";" *))
 
-and extends_interfaces = (Token.t (* "extends" *) * interface_type_list)
+and extends_interfaces = (Token.t (* "extends" *) * type_list)
 
 and field_access = (
     anon_choice_prim_exp_bbf4eda
@@ -582,12 +597,8 @@ and interface_declaration = (
   * identifier (*tok*)
   * type_parameters option
   * extends_interfaces option
+  * permits option
   * interface_body
-)
-
-and interface_type_list = (
-    type_
-  * (Token.t (* "," *) * type_) list (* zero or more *)
 )
 
 and local_variable_declaration = (
@@ -631,6 +642,8 @@ and modifiers =
     | `Native of Token.t (* "native" *)
     | `Tran of Token.t (* "transient" *)
     | `Vola of Token.t (* "volatile" *)
+    | `Sealed of Token.t (* "sealed" *)
+    | `NonD of Token.t (* "non-sealed" *)
   ]
     list (* one or more *)
 
@@ -645,6 +658,8 @@ and object_creation_expression = [
 and parenthesized_expression = (
     Token.t (* "(" *) * expression * Token.t (* ")" *)
 )
+
+and permits = (Token.t (* "permits" *) * type_list)
 
 and primary_expression = [
     `Lit of literal
@@ -833,7 +848,7 @@ and statement = [
     )
 ]
 
-and super_interfaces = (Token.t (* "implements" *) * interface_type_list)
+and super_interfaces = (Token.t (* "implements" *) * type_list)
 
 and superclass = (Token.t (* "extends" *) * type_)
 
@@ -907,6 +922,8 @@ and type_bound = (
   * (Token.t (* "&" *) * type_) list (* zero or more *)
 )
 
+and type_list = (type_ * (Token.t (* "," *) * type_) list (* zero or more *))
+
 and type_parameter = (
     annotation list (* zero or more *)
   * identifier (*tok*)
@@ -970,31 +987,35 @@ and wildcard_bounds = [
 ]
 [@@deriving sexp_of]
 
-type void_type (* inlined *) = Token.t (* "void" *)
-[@@deriving sexp_of]
-
-type boolean_type (* inlined *) = Token.t (* "boolean" *)
-[@@deriving sexp_of]
-
-type this (* inlined *) = Token.t (* "this" *)
-[@@deriving sexp_of]
-
 type null_literal (* inlined *) = Token.t (* "null" *)
+[@@deriving sexp_of]
+
+type asterisk (* inlined *) = Token.t (* "*" *)
 [@@deriving sexp_of]
 
 type false_ (* inlined *) = Token.t (* "false" *)
 [@@deriving sexp_of]
 
-type true_ (* inlined *) = Token.t (* "true" *)
-[@@deriving sexp_of]
-
-type comment (* inlined *) = Token.t
-[@@deriving sexp_of]
-
 type super (* inlined *) = Token.t (* "super" *)
 [@@deriving sexp_of]
 
-type asterisk (* inlined *) = Token.t (* "*" *)
+type boolean_type (* inlined *) = Token.t (* "boolean" *)
+[@@deriving sexp_of]
+
+type void_type (* inlined *) = Token.t (* "void" *)
+[@@deriving sexp_of]
+
+type this (* inlined *) = Token.t (* "this" *)
+[@@deriving sexp_of]
+
+type true_ (* inlined *) = Token.t (* "true" *)
+[@@deriving sexp_of]
+
+type continue_statement (* inlined *) = (
+    Token.t (* "continue" *)
+  * identifier (*tok*) option
+  * Token.t (* ";" *)
+)
 [@@deriving sexp_of]
 
 type break_statement (* inlined *) = (
@@ -1004,11 +1025,10 @@ type break_statement (* inlined *) = (
 )
 [@@deriving sexp_of]
 
-type continue_statement (* inlined *) = (
-    Token.t (* "continue" *)
-  * identifier (*tok*) option
-  * Token.t (* ";" *)
-)
+type comment (* inlined *) = [
+    `Line_comm of line_comment (*tok*)
+  | `Blk_comm of block_comment (*tok*)
+]
 [@@deriving sexp_of]
 
 type scoped_identifier (* inlined *) = (
@@ -1025,7 +1045,46 @@ type import_declaration (* inlined *) = (
 )
 [@@deriving sexp_of]
 
+type uses_module_directive (* inlined *) = (
+    Token.t (* "uses" *) * name * Token.t (* ";" *)
+)
+[@@deriving sexp_of]
+
 type marker_annotation (* inlined *) = (Token.t (* "@" *) * name)
+[@@deriving sexp_of]
+
+type requires_module_directive (* inlined *) = (
+    Token.t (* "requires" *)
+  * requires_modifier list (* zero or more *)
+  * name
+  * Token.t (* ";" *)
+)
+[@@deriving sexp_of]
+
+type provides_module_directive (* inlined *) = (
+    Token.t (* "provides" *)
+  * name
+  * Token.t (* "with" *)
+  * name
+  * (Token.t (* "," *) * name) list (* zero or more *)
+  * Token.t (* ";" *)
+)
+[@@deriving sexp_of]
+
+type opens_module_directive (* inlined *) = (
+    Token.t (* "opens" *)
+  * name
+  * anon_to_name_rep_COMMA_name_2956291 option
+  * Token.t (* ";" *)
+)
+[@@deriving sexp_of]
+
+type exports_module_directive (* inlined *) = (
+    Token.t (* "exports" *)
+  * name
+  * anon_to_name_rep_COMMA_name_2956291 option
+  * Token.t (* ";" *)
+)
 [@@deriving sexp_of]
 
 type annotated_type (* inlined *) = (
