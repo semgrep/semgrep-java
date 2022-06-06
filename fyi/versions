@@ -1,0 +1,32 @@
+File: semgrep-grammars/src/tree-sitter-java/LICENSE
+Git repo name: tree-sitter-java
+Latest commit in repo: ac14b4b1884102839455d32543ab6d53ae089ab7
+Last change in file:
+  commit 2efe37f92d2e6aeb25186e9da07455bb4a30163c
+  Author: Martin Jambon <martin@returntocorp.com>
+  Date:   Tue May 4 14:05:05 2021 -0700
+  
+      Merge pull request #81 from tree-sitter/mjambon-patch-1
+      
+      Fix hard break in PR template
+---
+File: semgrep-grammars/src/tree-sitter-java/grammar.js
+Git repo name: tree-sitter-java
+Latest commit in repo: ac14b4b1884102839455d32543ab6d53ae089ab7
+Last change in file:
+  commit 4548c60eac1cecb2538bef5a1c4d0af2bfaa9eb4
+  Author: Raghav Shankar <raghav@deepsource.io>
+  Date:   Tue May 24 14:03:30 2022 +0530
+  
+      Support sealed types
+---
+File: semgrep-grammars/src/semgrep-java/grammar.js
+Git repo name: ocaml-tree-sitter-semgrep
+Latest commit in repo: 4d326b6fde96585c75af5575136e0961d68f0eb8
+Last change in file:
+  commit a906bebe30e184b6d52670db5bac3709c89086ed
+  Author: Martin Jambon <martin@returntocorp.com>
+  Date:   Tue Feb 16 18:32:21 2021 -0800
+  
+      Hook up tree-sitter-java using the new script 'add-simple-language'.
+---
