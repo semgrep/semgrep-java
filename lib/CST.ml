@@ -77,11 +77,25 @@ type text_block = Token.t
 type hex_integer_literal = Token.t
 [@@deriving sexp_of]
 
+type break_statement = (
+    Token.t (* "break" *)
+  * identifier (*tok*) option
+  * Token.t (* ";" *)
+)
+[@@deriving sexp_of]
+
 type inferred_parameters = (
     Token.t (* "(" *)
   * identifier (*tok*)
   * (Token.t (* "," *) * identifier (*tok*)) list (* zero or more *)
   * Token.t (* ")" *)
+)
+[@@deriving sexp_of]
+
+type continue_statement = (
+    Token.t (* "continue" *)
+  * identifier (*tok*) option
+  * Token.t (* ";" *)
 )
 [@@deriving sexp_of]
 
@@ -443,6 +457,11 @@ and dimensions_expr = (
   * Token.t (* "]" *)
 )
 
+and do_statement = (
+    Token.t (* "do" *) * statement * Token.t (* "while" *)
+  * parenthesized_expression * Token.t (* ";" *)
+)
+
 and element_value = [
     `Exp of expression
   | `Elem_value_array_init of (
@@ -460,6 +479,18 @@ and element_value = [
 
 and element_value_pair = (
     identifier (*tok*) * Token.t (* "=" *) * element_value
+)
+
+and enhanced_for_statement = (
+    Token.t (* "for" *)
+  * Token.t (* "(" *)
+  * modifiers option
+  * unannotated_type
+  * variable_declarator_id
+  * Token.t (* ":" *)
+  * expression
+  * Token.t (* ")" *)
+  * statement
 )
 
 and enum_body = (
@@ -583,6 +614,23 @@ and field_access = (
 
 and finally_clause = (Token.t (* "finally" *) * block)
 
+and for_statement = (
+    Token.t (* "for" *)
+  * Token.t (* "(" *)
+  * [
+        `Local_var_decl of local_variable_declaration
+      | `Opt_exp_rep_COMMA_exp_SEMI of (
+            anon_exp_rep_COMMA_exp_0bb260c option
+          * Token.t (* ";" *)
+        )
+    ]
+  * expression option
+  * Token.t (* ";" *)
+  * anon_exp_rep_COMMA_exp_0bb260c option
+  * Token.t (* ")" *)
+  * statement
+)
+
 and formal_parameter = [
     `Opt_modifs_unan_type_var_decl_id of (
         modifiers option
@@ -609,6 +657,13 @@ and generic_type = (
   * type_arguments
 )
 
+and if_statement = (
+    Token.t (* "if" *)
+  * parenthesized_expression
+  * statement
+  * (Token.t (* "else" *) * statement) option
+)
+
 and interface_body = (
     Token.t (* "{" *)
   * [
@@ -633,6 +688,8 @@ and interface_declaration = (
   * permits option
   * interface_body
 )
+
+and labeled_statement = (identifier (*tok*) * Token.t (* ":" *) * statement)
 
 and local_variable_declaration = (
     modifiers option
@@ -764,6 +821,12 @@ and resource_specification = (
   * Token.t (* ")" *)
 )
 
+and return_statement = (
+    Token.t (* "return" *)
+  * expression option
+  * Token.t (* ";" *)
+)
+
 and scoped_type_identifier = (
     [
         `Id of identifier (*tok*)
@@ -786,92 +849,30 @@ and simple_type = [
 ]
 
 and statement = [
-    `Decl of declaration
-  | `Exp_stmt of expression_statement
-  | `Labe_stmt of (identifier (*tok*) * Token.t (* ":" *) * statement)
-  | `If_stmt of (
-        Token.t (* "if" *)
-      * parenthesized_expression
-      * statement
-      * (Token.t (* "else" *) * statement) option
-    )
-  | `While_stmt of (
-        Token.t (* "while" *) * parenthesized_expression * statement
-    )
-  | `For_stmt of (
-        Token.t (* "for" *)
-      * Token.t (* "(" *)
-      * [
-            `Local_var_decl of local_variable_declaration
-          | `Opt_exp_rep_COMMA_exp_SEMI of (
-                anon_exp_rep_COMMA_exp_0bb260c option
-              * Token.t (* ";" *)
-            )
-        ]
-      * expression option
-      * Token.t (* ";" *)
-      * anon_exp_rep_COMMA_exp_0bb260c option
-      * Token.t (* ")" *)
-      * statement
-    )
-  | `Enha_for_stmt of (
-        Token.t (* "for" *)
-      * Token.t (* "(" *)
-      * modifiers option
-      * unannotated_type
-      * variable_declarator_id
-      * Token.t (* ":" *)
-      * expression
-      * Token.t (* ")" *)
-      * statement
-    )
-  | `Blk of block
-  | `SEMI of Token.t (* ";" *)
-  | `Assert_stmt of assert_statement
-  | `Do_stmt of (
-        Token.t (* "do" *) * statement * Token.t (* "while" *)
-      * parenthesized_expression * Token.t (* ";" *)
-    )
-  | `Brk_stmt of (
-        Token.t (* "break" *)
-      * identifier (*tok*) option
-      * Token.t (* ";" *)
-    )
-  | `Cont_stmt of (
-        Token.t (* "continue" *)
-      * identifier (*tok*) option
-      * Token.t (* ";" *)
-    )
-  | `Ret_stmt of (
-        Token.t (* "return" *)
-      * expression option
-      * Token.t (* ";" *)
-    )
-  | `Yield_stmt of (Token.t (* "yield" *) * expression * Token.t (* ";" *))
-  | `Switch_exp of switch_expression
-  | `Sync_stmt of (
-        Token.t (* "synchronized" *) * parenthesized_expression * block
-    )
-  | `Local_var_decl of local_variable_declaration
-  | `Throw_stmt of throw_statement
-  | `Try_stmt of (
-        Token.t (* "try" *)
-      * block
-      * [
-            `Rep1_catch_clause of catch_clause list (* one or more *)
-          | `Rep_catch_clause_fina_clause of (
-                catch_clause list (* zero or more *)
-              * finally_clause
-            )
-        ]
-    )
-  | `Try_with_resous_stmt of (
-        Token.t (* "try" *)
-      * resource_specification
-      * block
-      * catch_clause list (* zero or more *)
-      * finally_clause option
-    )
+    `Choice_decl of [
+        `Decl of declaration
+      | `Exp_stmt of expression_statement
+      | `Labe_stmt of labeled_statement
+      | `If_stmt of if_statement
+      | `While_stmt of while_statement
+      | `For_stmt of for_statement
+      | `Enha_for_stmt of enhanced_for_statement
+      | `Blk of block
+      | `SEMI of Token.t (* ";" *)
+      | `Assert_stmt of assert_statement
+      | `Do_stmt of do_statement
+      | `Brk_stmt of break_statement
+      | `Cont_stmt of continue_statement
+      | `Ret_stmt of return_statement
+      | `Yield_stmt of yield_statement
+      | `Switch_exp of switch_expression
+      | `Sync_stmt of synchronized_statement
+      | `Local_var_decl of local_variable_declaration
+      | `Throw_stmt of throw_statement
+      | `Try_stmt of try_statement
+      | `Try_with_resous_stmt of try_with_resources_statement
+    ]
+  | `Semg_ellips of Token.t (* "..." *)
 ]
 
 and super_interfaces = (Token.t (* "implements" *) * type_list)
@@ -916,6 +917,10 @@ and switch_rule = (
     ]
 )
 
+and synchronized_statement = (
+    Token.t (* "synchronized" *) * parenthesized_expression * block
+)
+
 and throw_statement = (
     Token.t (* "throw" *) * expression * Token.t (* ";" *)
 )
@@ -924,6 +929,26 @@ and throws = (
     Token.t (* "throws" *)
   * type_
   * (Token.t (* "," *) * type_) list (* zero or more *)
+)
+
+and try_statement = (
+    Token.t (* "try" *)
+  * block
+  * [
+        `Rep1_catch_clause of catch_clause list (* one or more *)
+      | `Rep_catch_clause_fina_clause of (
+            catch_clause list (* zero or more *)
+          * finally_clause
+        )
+    ]
+)
+
+and try_with_resources_statement = (
+    Token.t (* "try" *)
+  * resource_specification
+  * block
+  * catch_clause list (* zero or more *)
+  * finally_clause option
 )
 
 and type_ = [
@@ -1007,10 +1032,18 @@ and variable_initializer = [
   | `Array_init of array_initializer
 ]
 
+and while_statement = (
+    Token.t (* "while" *) * parenthesized_expression * statement
+)
+
 and wildcard_bounds = [
     `Extends_type of superclass
   | `Super_type of (Token.t (* "super" *) * type_)
 ]
+
+and yield_statement = (
+    Token.t (* "yield" *) * expression * Token.t (* ";" *)
+)
 [@@deriving sexp_of]
 
 type program = [
@@ -1048,20 +1081,6 @@ type boolean_type (* inlined *) = Token.t (* "boolean" *)
 [@@deriving sexp_of]
 
 type dummy_alias1 (* inlined *) = line_comment (*tok*)
-[@@deriving sexp_of]
-
-type break_statement (* inlined *) = (
-    Token.t (* "break" *)
-  * identifier (*tok*) option
-  * Token.t (* ";" *)
-)
-[@@deriving sexp_of]
-
-type continue_statement (* inlined *) = (
-    Token.t (* "continue" *)
-  * identifier (*tok*) option
-  * Token.t (* ";" *)
-)
 [@@deriving sexp_of]
 
 type comment (* inlined *) = [
@@ -1177,12 +1196,6 @@ type cast_expression (* inlined *) = (
 )
 [@@deriving sexp_of]
 
-type do_statement (* inlined *) = (
-    Token.t (* "do" *) * statement * Token.t (* "while" *)
-  * parenthesized_expression * Token.t (* ";" *)
-)
-[@@deriving sexp_of]
-
 type element_value_array_initializer (* inlined *) = (
     Token.t (* "{" *)
   * (
@@ -1195,19 +1208,6 @@ type element_value_array_initializer (* inlined *) = (
 )
 [@@deriving sexp_of]
 
-type enhanced_for_statement (* inlined *) = (
-    Token.t (* "for" *)
-  * Token.t (* "(" *)
-  * modifiers option
-  * unannotated_type
-  * variable_declarator_id
-  * Token.t (* ":" *)
-  * expression
-  * Token.t (* ")" *)
-  * statement
-)
-[@@deriving sexp_of]
-
 type field_declaration (* inlined *) = (
     modifiers option
   * unannotated_type
@@ -1216,39 +1216,8 @@ type field_declaration (* inlined *) = (
 )
 [@@deriving sexp_of]
 
-type for_statement (* inlined *) = (
-    Token.t (* "for" *)
-  * Token.t (* "(" *)
-  * [
-        `Local_var_decl of local_variable_declaration
-      | `Opt_exp_rep_COMMA_exp_SEMI of (
-            anon_exp_rep_COMMA_exp_0bb260c option
-          * Token.t (* ";" *)
-        )
-    ]
-  * expression option
-  * Token.t (* ";" *)
-  * anon_exp_rep_COMMA_exp_0bb260c option
-  * Token.t (* ")" *)
-  * statement
-)
-[@@deriving sexp_of]
-
-type if_statement (* inlined *) = (
-    Token.t (* "if" *)
-  * parenthesized_expression
-  * statement
-  * (Token.t (* "else" *) * statement) option
-)
-[@@deriving sexp_of]
-
 type instanceof_expression (* inlined *) = (
     expression * Token.t (* "instanceof" *) * type_
-)
-[@@deriving sexp_of]
-
-type labeled_statement (* inlined *) = (
-    identifier (*tok*) * Token.t (* ":" *) * statement
 )
 [@@deriving sexp_of]
 
@@ -1289,13 +1258,6 @@ type record_declaration (* inlined *) = (
 )
 [@@deriving sexp_of]
 
-type return_statement (* inlined *) = (
-    Token.t (* "return" *)
-  * expression option
-  * Token.t (* ";" *)
-)
-[@@deriving sexp_of]
-
 type spread_parameter (* inlined *) = (
     modifiers option
   * unannotated_type
@@ -1307,41 +1269,9 @@ type spread_parameter (* inlined *) = (
 type static_initializer (* inlined *) = (Token.t (* "static" *) * block)
 [@@deriving sexp_of]
 
-type synchronized_statement (* inlined *) = (
-    Token.t (* "synchronized" *) * parenthesized_expression * block
-)
-[@@deriving sexp_of]
-
 type ternary_expression (* inlined *) = (
     expression * Token.t (* "?" *) * expression * Token.t (* ":" *)
   * expression
-)
-[@@deriving sexp_of]
-
-type try_statement (* inlined *) = (
-    Token.t (* "try" *)
-  * block
-  * [
-        `Rep1_catch_clause of catch_clause list (* one or more *)
-      | `Rep_catch_clause_fina_clause of (
-            catch_clause list (* zero or more *)
-          * finally_clause
-        )
-    ]
-)
-[@@deriving sexp_of]
-
-type try_with_resources_statement (* inlined *) = (
-    Token.t (* "try" *)
-  * resource_specification
-  * block
-  * catch_clause list (* zero or more *)
-  * finally_clause option
-)
-[@@deriving sexp_of]
-
-type while_statement (* inlined *) = (
-    Token.t (* "while" *) * parenthesized_expression * statement
 )
 [@@deriving sexp_of]
 
@@ -1349,11 +1279,6 @@ type wildcard (* inlined *) = (
     annotation list (* zero or more *)
   * Token.t (* "?" *)
   * wildcard_bounds option
-)
-[@@deriving sexp_of]
-
-type yield_statement (* inlined *) = (
-    Token.t (* "yield" *) * expression * Token.t (* ";" *)
 )
 [@@deriving sexp_of]
 

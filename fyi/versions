@@ -26,35 +26,22 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 0641f333798419e82b73d1baf31a9e2db6bcc01f
+Latest commit in repo: 278bae677938ccd03f33bcc0e09c98e3204d21a5
 Last change in file:
-  commit 2d2e3e70a2c6a979403dadefa3cfa32d9b89d87c
-  gpg: Signature made Wed 31 Aug 2022 01:24:06 PM PDT
+  commit 278bae677938ccd03f33bcc0e09c98e3204d21a5
+  gpg: Signature made Mon 12 Sep 2022 11:50:04 AM PDT
   gpg:                using RSA key C1930C5F9C9E0472DCF9ECC97D71116F505E5145
   gpg: Good signature from "Nathaniel Mote <nat@r2c.dev>" [ultimate]
   gpg:                 aka "Nathaniel Mote <nat@natmote.net>" [ultimate]
   Author: Nat Mote <nat@r2c.dev>
-  Date:   Wed Aug 31 10:33:39 2022 -0700
+  Date:   Mon Sep 12 11:32:51 2022 -0700
   
-      java: Parse semgrep extensions
+      java: Parse semgrep ellipsis as a statement
       
-      Currently we use pfff to parse Java patterns. Unfortunately, due to an
-      issue I do not fully understand, it is unable to parse the pattern
-      `public Foo() { }`, which is a standalone constructor with a privacy
-      modifier. It looks like the grammar should allow this, and in fact it
-      does allow patterns like `Foo() { }`. There is already a hack in place
-      to address an LR(1) conflict, and I suspect that it is not working as
-      desired. Rather than debug the issue with the pfff parser, I think it
-      makes sense to switch to using the tree sitter parser as a fallback for
-      pattern parsing like I recently did for JS/TS.
+      This should cover pattern parsing for nearly all patterns. There are
+      still a few pattern features for GA languages that won't work with this
+      parser (dots method chaining, deep expr operator, etc.). We'll add those
+      later.
       
-      This does the minimum to support the basic Semgrep pattern extensions
-      (ellipsis in a few positions and tests verifying that metavariables
-      parse), as well as the constructor case that does not work correctly in
-      the pfff parser.
-      
-      Helps https://github.com/returntocorp/semgrep/issues/5558
-      
-      Test plan: Automated tests, plus testing of integration with semgrep
-      (already done, but PR not yet up).
+      Test plan: Automated tests
 ---

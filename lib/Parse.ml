@@ -1620,27 +1620,30 @@ let children_regexps : (string * Run.exp option) list = [
   "statement",
   Some (
     Alt [|
-      Token (Name "declaration");
-      Token (Name "expression_statement");
-      Token (Name "labeled_statement");
-      Token (Name "if_statement");
-      Token (Name "while_statement");
-      Token (Name "for_statement");
-      Token (Name "enhanced_for_statement");
-      Token (Name "block");
-      Token (Literal ";");
-      Token (Name "assert_statement");
-      Token (Name "do_statement");
-      Token (Name "break_statement");
-      Token (Name "continue_statement");
-      Token (Name "return_statement");
-      Token (Name "yield_statement");
-      Token (Name "switch_expression");
-      Token (Name "synchronized_statement");
-      Token (Name "local_variable_declaration");
-      Token (Name "throw_statement");
-      Token (Name "try_statement");
-      Token (Name "try_with_resources_statement");
+      Alt [|
+        Token (Name "declaration");
+        Token (Name "expression_statement");
+        Token (Name "labeled_statement");
+        Token (Name "if_statement");
+        Token (Name "while_statement");
+        Token (Name "for_statement");
+        Token (Name "enhanced_for_statement");
+        Token (Name "block");
+        Token (Literal ";");
+        Token (Name "assert_statement");
+        Token (Name "do_statement");
+        Token (Name "break_statement");
+        Token (Name "continue_statement");
+        Token (Name "return_statement");
+        Token (Name "yield_statement");
+        Token (Name "switch_expression");
+        Token (Name "synchronized_statement");
+        Token (Name "local_variable_declaration");
+        Token (Name "throw_statement");
+        Token (Name "try_statement");
+        Token (Name "try_with_resources_statement");
+      |];
+      Token (Name "semgrep_ellipsis");
     |];
   );
   "static_initializer",
@@ -5679,88 +5682,98 @@ and trans_statement ((kind, body) : mt) : CST.statement =
   | Children v ->
       (match v with
       | Alt (0, v) ->
-          `Decl (
-            trans_declaration (Run.matcher_token v)
+          `Choice_decl (
+            (match v with
+            | Alt (0, v) ->
+                `Decl (
+                  trans_declaration (Run.matcher_token v)
+                )
+            | Alt (1, v) ->
+                `Exp_stmt (
+                  trans_expression_statement (Run.matcher_token v)
+                )
+            | Alt (2, v) ->
+                `Labe_stmt (
+                  trans_labeled_statement (Run.matcher_token v)
+                )
+            | Alt (3, v) ->
+                `If_stmt (
+                  trans_if_statement (Run.matcher_token v)
+                )
+            | Alt (4, v) ->
+                `While_stmt (
+                  trans_while_statement (Run.matcher_token v)
+                )
+            | Alt (5, v) ->
+                `For_stmt (
+                  trans_for_statement (Run.matcher_token v)
+                )
+            | Alt (6, v) ->
+                `Enha_for_stmt (
+                  trans_enhanced_for_statement (Run.matcher_token v)
+                )
+            | Alt (7, v) ->
+                `Blk (
+                  trans_block (Run.matcher_token v)
+                )
+            | Alt (8, v) ->
+                `SEMI (
+                  Run.trans_token (Run.matcher_token v)
+                )
+            | Alt (9, v) ->
+                `Assert_stmt (
+                  trans_assert_statement (Run.matcher_token v)
+                )
+            | Alt (10, v) ->
+                `Do_stmt (
+                  trans_do_statement (Run.matcher_token v)
+                )
+            | Alt (11, v) ->
+                `Brk_stmt (
+                  trans_break_statement (Run.matcher_token v)
+                )
+            | Alt (12, v) ->
+                `Cont_stmt (
+                  trans_continue_statement (Run.matcher_token v)
+                )
+            | Alt (13, v) ->
+                `Ret_stmt (
+                  trans_return_statement (Run.matcher_token v)
+                )
+            | Alt (14, v) ->
+                `Yield_stmt (
+                  trans_yield_statement (Run.matcher_token v)
+                )
+            | Alt (15, v) ->
+                `Switch_exp (
+                  trans_switch_expression (Run.matcher_token v)
+                )
+            | Alt (16, v) ->
+                `Sync_stmt (
+                  trans_synchronized_statement (Run.matcher_token v)
+                )
+            | Alt (17, v) ->
+                `Local_var_decl (
+                  trans_local_variable_declaration (Run.matcher_token v)
+                )
+            | Alt (18, v) ->
+                `Throw_stmt (
+                  trans_throw_statement (Run.matcher_token v)
+                )
+            | Alt (19, v) ->
+                `Try_stmt (
+                  trans_try_statement (Run.matcher_token v)
+                )
+            | Alt (20, v) ->
+                `Try_with_resous_stmt (
+                  trans_try_with_resources_statement (Run.matcher_token v)
+                )
+            | _ -> assert false
+            )
           )
       | Alt (1, v) ->
-          `Exp_stmt (
-            trans_expression_statement (Run.matcher_token v)
-          )
-      | Alt (2, v) ->
-          `Labe_stmt (
-            trans_labeled_statement (Run.matcher_token v)
-          )
-      | Alt (3, v) ->
-          `If_stmt (
-            trans_if_statement (Run.matcher_token v)
-          )
-      | Alt (4, v) ->
-          `While_stmt (
-            trans_while_statement (Run.matcher_token v)
-          )
-      | Alt (5, v) ->
-          `For_stmt (
-            trans_for_statement (Run.matcher_token v)
-          )
-      | Alt (6, v) ->
-          `Enha_for_stmt (
-            trans_enhanced_for_statement (Run.matcher_token v)
-          )
-      | Alt (7, v) ->
-          `Blk (
-            trans_block (Run.matcher_token v)
-          )
-      | Alt (8, v) ->
-          `SEMI (
-            Run.trans_token (Run.matcher_token v)
-          )
-      | Alt (9, v) ->
-          `Assert_stmt (
-            trans_assert_statement (Run.matcher_token v)
-          )
-      | Alt (10, v) ->
-          `Do_stmt (
-            trans_do_statement (Run.matcher_token v)
-          )
-      | Alt (11, v) ->
-          `Brk_stmt (
-            trans_break_statement (Run.matcher_token v)
-          )
-      | Alt (12, v) ->
-          `Cont_stmt (
-            trans_continue_statement (Run.matcher_token v)
-          )
-      | Alt (13, v) ->
-          `Ret_stmt (
-            trans_return_statement (Run.matcher_token v)
-          )
-      | Alt (14, v) ->
-          `Yield_stmt (
-            trans_yield_statement (Run.matcher_token v)
-          )
-      | Alt (15, v) ->
-          `Switch_exp (
-            trans_switch_expression (Run.matcher_token v)
-          )
-      | Alt (16, v) ->
-          `Sync_stmt (
-            trans_synchronized_statement (Run.matcher_token v)
-          )
-      | Alt (17, v) ->
-          `Local_var_decl (
-            trans_local_variable_declaration (Run.matcher_token v)
-          )
-      | Alt (18, v) ->
-          `Throw_stmt (
-            trans_throw_statement (Run.matcher_token v)
-          )
-      | Alt (19, v) ->
-          `Try_stmt (
-            trans_try_statement (Run.matcher_token v)
-          )
-      | Alt (20, v) ->
-          `Try_with_resous_stmt (
-            trans_try_with_resources_statement (Run.matcher_token v)
+          `Semg_ellips (
+            trans_semgrep_ellipsis (Run.matcher_token v)
           )
       | _ -> assert false
       )
