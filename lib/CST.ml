@@ -68,6 +68,7 @@ type string_literal = Token.t
 type reserved_identifier = [
     `Open of Token.t (* "open" *)
   | `Module of Token.t (* "module" *)
+  | `Record of Token.t (* "record" *)
 ]
 [@@deriving sexp_of]
 
@@ -81,14 +82,6 @@ type break_statement = (
     Token.t (* "break" *)
   * identifier (*tok*) option
   * Token.t (* ";" *)
-)
-[@@deriving sexp_of]
-
-type inferred_parameters = (
-    Token.t (* "(" *)
-  * identifier (*tok*)
-  * (Token.t (* "," *) * identifier (*tok*)) list (* zero or more *)
-  * Token.t (* ")" *)
 )
 [@@deriving sexp_of]
 
@@ -132,6 +125,14 @@ type anon_to_name_rep_COMMA_name_2956291 = (
     Token.t (* "to" *)
   * name
   * (Token.t (* "," *) * name) list (* zero or more *)
+)
+[@@deriving sexp_of]
+
+type inferred_parameters = (
+    Token.t (* "(" *)
+  * anon_choice_id_0e59f50
+  * (Token.t (* "," *) * anon_choice_id_0e59f50) list (* zero or more *)
+  * Token.t (* ")" *)
 )
 [@@deriving sexp_of]
 
@@ -200,6 +201,7 @@ and annotation_type_body = (
       | `Cst_decl of constant_declaration
       | `Class_decl of class_declaration
       | `Inte_decl of interface_declaration
+      | `Enum_decl of enum_declaration
       | `Anno_type_decl of annotation_type_declaration
     ]
       list (* zero or more *)
@@ -265,6 +267,7 @@ and array_access = (
 
 and array_creation_expression = (
     Token.t (* "new" *)
+  * annotation list (* zero or more *)
   * simple_type
   * [
         `Rep1_dimens_expr_opt_dimens of (
@@ -353,13 +356,7 @@ and class_body_declaration = [
       * variable_declarator_list
       * Token.t (* ";" *)
     )
-  | `Record_decl of (
-        modifiers option
-      * Token.t (* "record" *)
-      * identifier (*tok*)
-      * formal_parameters
-      * class_body
-    )
+  | `Record_decl of record_declaration
   | `Meth_decl of method_declaration
   | `Class_decl of class_declaration
   | `Inte_decl of interface_declaration
@@ -435,6 +432,7 @@ and declaration = [
       * Token.t (* ";" *)
     )
   | `Class_decl of class_declaration
+  | `Record_decl of record_declaration
   | `Inte_decl of interface_declaration
   | `Anno_type_decl of annotation_type_declaration
   | `Enum_decl of enum_declaration
@@ -570,12 +568,18 @@ and expression = [
       * expression
     )
   | `Bin_exp of binary_expression
-  | `Inst_exp of (expression * Token.t (* "instanceof" *) * type_)
+  | `Inst_exp of (
+        expression
+      * Token.t (* "instanceof" *)
+      * type_
+      * anon_choice_id_0e59f50 option
+    )
   | `Lambda_exp of (
         [
             `Id of identifier (*tok*)
           | `Formal_params of formal_parameters
           | `Infe_params of inferred_parameters
+          | `Choice_open of reserved_identifier
         ]
       * Token.t (* "->" *)
       * [ `Exp of expression | `Blk of block ]
@@ -799,6 +803,15 @@ and receiver_parameter = (
   * unannotated_type
   * (identifier (*tok*) * Token.t (* "." *)) option
   * Token.t (* "this" *)
+)
+
+and record_declaration = (
+    modifiers option
+  * Token.t (* "record" *)
+  * identifier (*tok*)
+  * type_parameters option
+  * formal_parameters
+  * class_body
 )
 
 and resource = [
@@ -1217,7 +1230,10 @@ type field_declaration (* inlined *) = (
 [@@deriving sexp_of]
 
 type instanceof_expression (* inlined *) = (
-    expression * Token.t (* "instanceof" *) * type_
+    expression
+  * Token.t (* "instanceof" *)
+  * type_
+  * anon_choice_id_0e59f50 option
 )
 [@@deriving sexp_of]
 
@@ -1226,6 +1242,7 @@ type lambda_expression (* inlined *) = (
         `Id of identifier (*tok*)
       | `Formal_params of formal_parameters
       | `Infe_params of inferred_parameters
+      | `Choice_open of reserved_identifier
     ]
   * Token.t (* "->" *)
   * [ `Exp of expression | `Blk of block ]
@@ -1246,15 +1263,6 @@ type package_declaration (* inlined *) = (
   * Token.t (* "package" *)
   * name
   * Token.t (* ";" *)
-)
-[@@deriving sexp_of]
-
-type record_declaration (* inlined *) = (
-    modifiers option
-  * Token.t (* "record" *)
-  * identifier (*tok*)
-  * formal_parameters
-  * class_body
 )
 [@@deriving sexp_of]
 

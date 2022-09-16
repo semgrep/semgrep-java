@@ -1,40 +1,30 @@
 File: semgrep-grammars/src/tree-sitter-java/LICENSE
 Git repo name: tree-sitter-java
-Latest commit in repo: ac14b4b1884102839455d32543ab6d53ae089ab7
+Latest commit in repo: 81148c0902125150d616ea30190a630c86974a7a
 Last change in file:
   commit 594f37a72daf46820a8d5b1b939f39e8aa3c6ce1
-  gpg: Signature made Mon 27 Nov 2017 12:47:27 PM PST
-  gpg:                using RSA key 4AEE18F83AFDEB23
-  gpg: Good signature from "GitHub (web-flow commit signing) <noreply@github.com>" [full]
   Author: Ayman Nadeem <aymannadeem@github.com>
-  Date:   Mon Nov 27 12:47:27 2017 -0800
+  Date:   Mon Nov 27 12:47:27 2017
   
       Update LICENSE
 ---
 File: semgrep-grammars/src/tree-sitter-java/grammar.js
 Git repo name: tree-sitter-java
-Latest commit in repo: ac14b4b1884102839455d32543ab6d53ae089ab7
+Latest commit in repo: 81148c0902125150d616ea30190a630c86974a7a
 Last change in file:
-  commit 4548c60eac1cecb2538bef5a1c4d0af2bfaa9eb4
-  gpg: Signature made Tue 24 May 2022 01:33:30 AM PDT
-  gpg:                using EDDSA key 798D9025125782CFE9D9371DCF8C71B58DA35D69
-  gpg: Can't check signature: No public key
-  Author: Raghav Shankar <raghav@deepsource.io>
-  Date:   Tue May 24 14:03:30 2022 +0530
+  commit 123fab57882c7641766cf2efa4de0474ebdb62cd
+  Author: Bruno Mahé <bruno@bmahe.net>
+  Date:   Mon Aug 15 14:20:27 2022
   
-      Support sealed types
+      Inferred parameters needs to support reserved identifiers
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 278bae677938ccd03f33bcc0e09c98e3204d21a5
+Latest commit in repo: 657bf6e4a647a4aca6b6a198c3ca93b3a91d8db8
 Last change in file:
   commit 278bae677938ccd03f33bcc0e09c98e3204d21a5
-  gpg: Signature made Mon 12 Sep 2022 11:50:04 AM PDT
-  gpg:                using RSA key C1930C5F9C9E0472DCF9ECC97D71116F505E5145
-  gpg: Good signature from "Nathaniel Mote <nat@r2c.dev>" [ultimate]
-  gpg:                 aka "Nathaniel Mote <nat@natmote.net>" [ultimate]
   Author: Nat Mote <nat@r2c.dev>
-  Date:   Mon Sep 12 11:32:51 2022 -0700
+  Date:   Mon Sep 12 11:32:51 2022
   
       java: Parse semgrep ellipsis as a statement
       

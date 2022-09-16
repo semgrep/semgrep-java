@@ -108,11 +108,25 @@ let children_regexps : (string * Run.exp option) list = [
   Some (
     Seq [
       Token (Literal "(");
-      Token (Name "identifier");
+      Alt [|
+        Token (Name "identifier");
+        Alt [|
+          Token (Literal "open");
+          Token (Literal "module");
+          Token (Literal "record");
+        |];
+      |];
       Repeat (
         Seq [
           Token (Literal ",");
-          Token (Name "identifier");
+          Alt [|
+            Token (Name "identifier");
+            Alt [|
+              Token (Literal "open");
+              Token (Literal "module");
+              Token (Literal "record");
+            |];
+          |];
         ];
       );
       Token (Literal ")");
@@ -136,6 +150,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "scoped_identifier");
       |];
@@ -152,6 +167,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "scoped_identifier");
       |];
@@ -163,6 +179,7 @@ let children_regexps : (string * Run.exp option) list = [
             Alt [|
               Token (Literal "open");
               Token (Literal "module");
+              Token (Literal "record");
             |];
             Token (Name "scoped_identifier");
           |];
@@ -174,6 +191,7 @@ let children_regexps : (string * Run.exp option) list = [
                 Alt [|
                   Token (Literal "open");
                   Token (Literal "module");
+                  Token (Literal "record");
                 |];
                 Token (Name "scoped_identifier");
               |];
@@ -196,6 +214,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "scoped_identifier");
       |];
@@ -217,6 +236,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "scoped_identifier");
       |];
@@ -231,6 +251,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "scoped_identifier");
       |];
@@ -246,6 +267,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "scoped_identifier");
       |];
@@ -257,6 +279,7 @@ let children_regexps : (string * Run.exp option) list = [
             Alt [|
               Token (Literal "open");
               Token (Literal "module");
+              Token (Literal "record");
             |];
             Token (Name "scoped_identifier");
           |];
@@ -268,6 +291,7 @@ let children_regexps : (string * Run.exp option) list = [
                 Alt [|
                   Token (Literal "open");
                   Token (Literal "module");
+                  Token (Literal "record");
                 |];
                 Token (Name "scoped_identifier");
               |];
@@ -290,6 +314,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "scoped_identifier");
       |];
@@ -305,6 +330,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "scoped_identifier");
       |];
@@ -314,6 +340,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "scoped_identifier");
       |];
@@ -325,6 +352,7 @@ let children_regexps : (string * Run.exp option) list = [
             Alt [|
               Token (Literal "open");
               Token (Literal "module");
+              Token (Literal "record");
             |];
             Token (Name "scoped_identifier");
           |];
@@ -378,6 +406,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "scoped_identifier");
       |];
@@ -415,6 +444,7 @@ let children_regexps : (string * Run.exp option) list = [
           Token (Name "constant_declaration");
           Token (Name "class_declaration");
           Token (Name "interface_declaration");
+          Token (Name "enum_declaration");
           Token (Name "annotation_type_declaration");
         |];
       );
@@ -482,6 +512,9 @@ let children_regexps : (string * Run.exp option) list = [
   Some (
     Seq [
       Token (Literal "new");
+      Repeat (
+        Token (Name "annotation");
+      );
       Alt [|
         Token (Name "void_type");
         Token (Name "integral_type");
@@ -566,6 +599,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "field_access");
         Token (Name "array_access");
@@ -851,6 +885,7 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "package_declaration");
       Token (Name "import_declaration");
       Token (Name "class_declaration");
+      Token (Name "record_declaration");
       Token (Name "interface_declaration");
       Token (Name "annotation_type_declaration");
       Token (Name "enum_declaration");
@@ -1099,6 +1134,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "this");
       |];
@@ -1233,6 +1269,16 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "expression");
       Token (Literal "instanceof");
       Token (Name "type");
+      Opt (
+        Alt [|
+          Token (Name "identifier");
+          Alt [|
+            Token (Literal "open");
+            Token (Literal "module");
+            Token (Literal "record");
+          |];
+        |];
+      );
     ];
   );
   "interface_body",
@@ -1288,6 +1334,11 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "identifier");
         Token (Name "formal_parameters");
         Token (Name "inferred_parameters");
+        Alt [|
+          Token (Literal "open");
+          Token (Literal "module");
+          Token (Literal "record");
+        |];
       |];
       Token (Literal "->");
       Alt [|
@@ -1328,6 +1379,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
       |];
       Token (Name "formal_parameters");
@@ -1363,6 +1415,7 @@ let children_regexps : (string * Run.exp option) list = [
           Alt [|
             Token (Literal "open");
             Token (Literal "module");
+            Token (Literal "record");
           |];
         |];
         Seq [
@@ -1385,6 +1438,7 @@ let children_regexps : (string * Run.exp option) list = [
             Alt [|
               Token (Literal "open");
               Token (Literal "module");
+              Token (Literal "record");
             |];
           |];
         ];
@@ -1447,6 +1501,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "scoped_identifier");
       |];
@@ -1476,6 +1531,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "scoped_identifier");
       |];
@@ -1508,6 +1564,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
         Token (Name "parenthesized_expression");
         Token (Name "object_creation_expression");
@@ -1544,6 +1601,9 @@ let children_regexps : (string * Run.exp option) list = [
       );
       Token (Literal "record");
       Token (Name "identifier");
+      Opt (
+        Token (Name "type_parameters");
+      );
       Token (Name "formal_parameters");
       Token (Name "class_body");
     ];
@@ -1987,6 +2047,7 @@ let children_regexps : (string * Run.exp option) list = [
         Alt [|
           Token (Literal "open");
           Token (Literal "module");
+          Token (Literal "record");
         |];
       |];
       Opt (
@@ -2302,14 +2363,63 @@ let trans_inferred_parameters ((kind, body) : mt) : CST.inferred_parameters =
       | Seq [v0; v1; v2; v3] ->
           (
             Run.trans_token (Run.matcher_token v0),
-            trans_identifier (Run.matcher_token v1),
+            (match v1 with
+            | Alt (0, v) ->
+                `Id (
+                  trans_identifier (Run.matcher_token v)
+                )
+            | Alt (1, v) ->
+                `Choice_open (
+                  (match v with
+                  | Alt (0, v) ->
+                      `Open (
+                        Run.trans_token (Run.matcher_token v)
+                      )
+                  | Alt (1, v) ->
+                      `Module (
+                        Run.trans_token (Run.matcher_token v)
+                      )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
+                  | _ -> assert false
+                  )
+                )
+            | _ -> assert false
+            )
+            ,
             Run.repeat
               (fun v ->
                 (match v with
                 | Seq [v0; v1] ->
                     (
                       Run.trans_token (Run.matcher_token v0),
-                      trans_identifier (Run.matcher_token v1)
+                      (match v1 with
+                      | Alt (0, v) ->
+                          `Id (
+                            trans_identifier (Run.matcher_token v)
+                          )
+                      | Alt (1, v) ->
+                          `Choice_open (
+                            (match v with
+                            | Alt (0, v) ->
+                                `Open (
+                                  Run.trans_token (Run.matcher_token v)
+                                )
+                            | Alt (1, v) ->
+                                `Module (
+                                  Run.trans_token (Run.matcher_token v)
+                                )
+                            | Alt (2, v) ->
+                                `Record (
+                                  Run.trans_token (Run.matcher_token v)
+                                )
+                            | _ -> assert false
+                            )
+                          )
+                      | _ -> assert false
+                      )
                     )
                 | _ -> assert false
                 )
@@ -2361,6 +2471,10 @@ let rec trans_scoped_identifier ((kind, body) : mt) : CST.scoped_identifier =
                       `Module (
                         Run.trans_token (Run.matcher_token v)
                       )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
                   | _ -> assert false
                   )
                 )
@@ -2402,6 +2516,10 @@ let trans_exports_module_directive ((kind, body) : mt) : CST.exports_module_dire
                       `Module (
                         Run.trans_token (Run.matcher_token v)
                       )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
                   | _ -> assert false
                   )
                 )
@@ -2434,6 +2552,10 @@ let trans_exports_module_directive ((kind, body) : mt) : CST.exports_module_dire
                                 `Module (
                                   Run.trans_token (Run.matcher_token v)
                                 )
+                            | Alt (2, v) ->
+                                `Record (
+                                  Run.trans_token (Run.matcher_token v)
+                                )
                             | _ -> assert false
                             )
                           )
@@ -2464,6 +2586,10 @@ let trans_exports_module_directive ((kind, body) : mt) : CST.exports_module_dire
                                           )
                                       | Alt (1, v) ->
                                           `Module (
+                                            Run.trans_token (Run.matcher_token v)
+                                          )
+                                      | Alt (2, v) ->
+                                          `Record (
                                             Run.trans_token (Run.matcher_token v)
                                           )
                                       | _ -> assert false
@@ -2519,6 +2645,10 @@ let trans_import_declaration ((kind, body) : mt) : CST.import_declaration =
                       `Module (
                         Run.trans_token (Run.matcher_token v)
                       )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
                   | _ -> assert false
                   )
                 )
@@ -2571,6 +2701,10 @@ let trans_marker_annotation ((kind, body) : mt) : CST.marker_annotation =
                       `Module (
                         Run.trans_token (Run.matcher_token v)
                       )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
                   | _ -> assert false
                   )
                 )
@@ -2606,6 +2740,10 @@ let trans_uses_module_directive ((kind, body) : mt) : CST.uses_module_directive 
                       )
                   | Alt (1, v) ->
                       `Module (
+                        Run.trans_token (Run.matcher_token v)
+                      )
+                  | Alt (2, v) ->
+                      `Record (
                         Run.trans_token (Run.matcher_token v)
                       )
                   | _ -> assert false
@@ -2647,6 +2785,10 @@ let trans_opens_module_directive ((kind, body) : mt) : CST.opens_module_directiv
                       `Module (
                         Run.trans_token (Run.matcher_token v)
                       )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
                   | _ -> assert false
                   )
                 )
@@ -2679,6 +2821,10 @@ let trans_opens_module_directive ((kind, body) : mt) : CST.opens_module_directiv
                                 `Module (
                                   Run.trans_token (Run.matcher_token v)
                                 )
+                            | Alt (2, v) ->
+                                `Record (
+                                  Run.trans_token (Run.matcher_token v)
+                                )
                             | _ -> assert false
                             )
                           )
@@ -2709,6 +2855,10 @@ let trans_opens_module_directive ((kind, body) : mt) : CST.opens_module_directiv
                                           )
                                       | Alt (1, v) ->
                                           `Module (
+                                            Run.trans_token (Run.matcher_token v)
+                                          )
+                                      | Alt (2, v) ->
+                                          `Record (
                                             Run.trans_token (Run.matcher_token v)
                                           )
                                       | _ -> assert false
@@ -2764,6 +2914,10 @@ let trans_requires_module_directive ((kind, body) : mt) : CST.requires_module_di
                       `Module (
                         Run.trans_token (Run.matcher_token v)
                       )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
                   | _ -> assert false
                   )
                 )
@@ -2803,6 +2957,10 @@ let trans_provides_module_directive ((kind, body) : mt) : CST.provides_module_di
                       `Module (
                         Run.trans_token (Run.matcher_token v)
                       )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
                   | _ -> assert false
                   )
                 )
@@ -2828,6 +2986,10 @@ let trans_provides_module_directive ((kind, body) : mt) : CST.provides_module_di
                       )
                   | Alt (1, v) ->
                       `Module (
+                        Run.trans_token (Run.matcher_token v)
+                      )
+                  | Alt (2, v) ->
+                      `Record (
                         Run.trans_token (Run.matcher_token v)
                       )
                   | _ -> assert false
@@ -2860,6 +3022,10 @@ let trans_provides_module_directive ((kind, body) : mt) : CST.provides_module_di
                                 )
                             | Alt (1, v) ->
                                 `Module (
+                                  Run.trans_token (Run.matcher_token v)
+                                )
+                            | Alt (2, v) ->
+                                `Record (
                                   Run.trans_token (Run.matcher_token v)
                                 )
                             | _ -> assert false
@@ -2983,6 +3149,10 @@ and trans_annotation_ ((kind, body) : mt) : CST.annotation_ =
                       `Module (
                         Run.trans_token (Run.matcher_token v)
                       )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
                   | _ -> assert false
                   )
                 )
@@ -3073,6 +3243,10 @@ and trans_annotation_type_body ((kind, body) : mt) : CST.annotation_type_body =
                       trans_interface_declaration (Run.matcher_token v)
                     )
                 | Alt (4, v) ->
+                    `Enum_decl (
+                      trans_enum_declaration (Run.matcher_token v)
+                    )
+                | Alt (5, v) ->
                     `Anno_type_decl (
                       trans_annotation_type_declaration (Run.matcher_token v)
                     )
@@ -3189,10 +3363,14 @@ and trans_array_creation_expression ((kind, body) : mt) : CST.array_creation_exp
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2] ->
+      | Seq [v0; v1; v2; v3] ->
           (
             Run.trans_token (Run.matcher_token v0),
-            (match v1 with
+            Run.repeat
+              (fun v -> trans_annotation (Run.matcher_token v))
+              v1
+            ,
+            (match v2 with
             | Alt (0, v) ->
                 `Void_type (
                   trans_void_type (Run.matcher_token v)
@@ -3224,7 +3402,7 @@ and trans_array_creation_expression ((kind, body) : mt) : CST.array_creation_exp
             | _ -> assert false
             )
             ,
-            (match v2 with
+            (match v3 with
             | Alt (0, v) ->
                 `Rep1_dimens_expr_opt_dimens (
                   (match v with
@@ -3388,6 +3566,10 @@ and trans_assignment_expression ((kind, body) : mt) : CST.assignment_expression 
                       )
                   | Alt (1, v) ->
                       `Module (
+                        Run.trans_token (Run.matcher_token v)
+                      )
+                  | Alt (2, v) ->
+                      `Record (
                         Run.trans_token (Run.matcher_token v)
                       )
                   | _ -> assert false
@@ -4013,14 +4195,18 @@ and trans_declaration ((kind, body) : mt) : CST.declaration =
             trans_class_declaration (Run.matcher_token v)
           )
       | Alt (4, v) ->
+          `Record_decl (
+            trans_record_declaration (Run.matcher_token v)
+          )
+      | Alt (5, v) ->
           `Inte_decl (
             trans_interface_declaration (Run.matcher_token v)
           )
-      | Alt (5, v) ->
+      | Alt (6, v) ->
           `Anno_type_decl (
             trans_annotation_type_declaration (Run.matcher_token v)
           )
-      | Alt (6, v) ->
+      | Alt (7, v) ->
           `Enum_decl (
             trans_enum_declaration (Run.matcher_token v)
           )
@@ -4535,6 +4721,10 @@ and trans_field_access ((kind, body) : mt) : CST.field_access =
                       `Module (
                         Run.trans_token (Run.matcher_token v)
                       )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
                   | _ -> assert false
                   )
                 )
@@ -4809,11 +4999,40 @@ and trans_instanceof_expression ((kind, body) : mt) : CST.instanceof_expression 
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2] ->
+      | Seq [v0; v1; v2; v3] ->
           (
             trans_expression (Run.matcher_token v0),
             Run.trans_token (Run.matcher_token v1),
-            trans_type_ (Run.matcher_token v2)
+            trans_type_ (Run.matcher_token v2),
+            Run.opt
+              (fun v ->
+                (match v with
+                | Alt (0, v) ->
+                    `Id (
+                      trans_identifier (Run.matcher_token v)
+                    )
+                | Alt (1, v) ->
+                    `Choice_open (
+                      (match v with
+                      | Alt (0, v) ->
+                          `Open (
+                            Run.trans_token (Run.matcher_token v)
+                          )
+                      | Alt (1, v) ->
+                          `Module (
+                            Run.trans_token (Run.matcher_token v)
+                          )
+                      | Alt (2, v) ->
+                          `Record (
+                            Run.trans_token (Run.matcher_token v)
+                          )
+                      | _ -> assert false
+                      )
+                    )
+                | _ -> assert false
+                )
+              )
+              v3
           )
       | _ -> assert false
       )
@@ -4931,6 +5150,24 @@ and trans_lambda_expression ((kind, body) : mt) : CST.lambda_expression =
                 `Infe_params (
                   trans_inferred_parameters (Run.matcher_token v)
                 )
+            | Alt (3, v) ->
+                `Choice_open (
+                  (match v with
+                  | Alt (0, v) ->
+                      `Open (
+                        Run.trans_token (Run.matcher_token v)
+                      )
+                  | Alt (1, v) ->
+                      `Module (
+                        Run.trans_token (Run.matcher_token v)
+                      )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
+                  | _ -> assert false
+                  )
+                )
             | _ -> assert false
             )
             ,
@@ -5018,6 +5255,10 @@ and trans_method_declarator ((kind, body) : mt) : CST.method_declarator =
                       `Module (
                         Run.trans_token (Run.matcher_token v)
                       )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
                   | _ -> assert false
                   )
                 )
@@ -5089,6 +5330,10 @@ and trans_method_invocation ((kind, body) : mt) : CST.method_invocation =
                             `Module (
                               Run.trans_token (Run.matcher_token v)
                             )
+                        | Alt (2, v) ->
+                            `Record (
+                              Run.trans_token (Run.matcher_token v)
+                            )
                         | _ -> assert false
                         )
                       )
@@ -5144,6 +5389,10 @@ and trans_method_invocation ((kind, body) : mt) : CST.method_invocation =
                                   )
                               | Alt (1, v) ->
                                   `Module (
+                                    Run.trans_token (Run.matcher_token v)
+                                  )
+                              | Alt (2, v) ->
+                                  `Record (
                                     Run.trans_token (Run.matcher_token v)
                                   )
                               | _ -> assert false
@@ -5310,6 +5559,10 @@ and trans_module_declaration ((kind, body) : mt) : CST.module_declaration =
                       `Module (
                         Run.trans_token (Run.matcher_token v)
                       )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
                   | _ -> assert false
                   )
                 )
@@ -5375,6 +5628,10 @@ and trans_package_declaration ((kind, body) : mt) : CST.package_declaration =
                       )
                   | Alt (1, v) ->
                       `Module (
+                        Run.trans_token (Run.matcher_token v)
+                      )
+                  | Alt (2, v) ->
+                      `Record (
                         Run.trans_token (Run.matcher_token v)
                       )
                   | _ -> assert false
@@ -5454,6 +5711,10 @@ and trans_primary_expression ((kind, body) : mt) : CST.primary_expression =
                       `Module (
                         Run.trans_token (Run.matcher_token v)
                       )
+                  | Alt (2, v) ->
+                      `Record (
+                        Run.trans_token (Run.matcher_token v)
+                      )
                   | _ -> assert false
                   )
                 )
@@ -5530,7 +5791,7 @@ and trans_record_declaration ((kind, body) : mt) : CST.record_declaration =
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2; v3; v4] ->
+      | Seq [v0; v1; v2; v3; v4; v5] ->
           (
             Run.opt
               (fun v -> trans_modifiers (Run.matcher_token v))
@@ -5538,8 +5799,12 @@ and trans_record_declaration ((kind, body) : mt) : CST.record_declaration =
             ,
             Run.trans_token (Run.matcher_token v1),
             trans_identifier (Run.matcher_token v2),
-            trans_formal_parameters (Run.matcher_token v3),
-            trans_class_body (Run.matcher_token v4)
+            Run.opt
+              (fun v -> trans_type_parameters (Run.matcher_token v))
+              v3
+            ,
+            trans_formal_parameters (Run.matcher_token v4),
+            trans_class_body (Run.matcher_token v5)
           )
       | _ -> assert false
       )
@@ -6504,6 +6769,10 @@ and trans_variable_declarator_id ((kind, body) : mt) : CST.variable_declarator_i
                       )
                   | Alt (1, v) ->
                       `Module (
+                        Run.trans_token (Run.matcher_token v)
+                      )
+                  | Alt (2, v) ->
+                      `Record (
                         Run.trans_token (Run.matcher_token v)
                       )
                   | _ -> assert false
