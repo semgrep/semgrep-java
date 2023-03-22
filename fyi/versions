@@ -1,37 +1,35 @@
 File: semgrep-grammars/src/tree-sitter-java/LICENSE
 Git repo name: tree-sitter-java
-Latest commit in repo: 81148c0902125150d616ea30190a630c86974a7a
+Latest commit in repo: 3c24aa9365985830421a3a7b6791b415961ea770
 Last change in file:
   commit 594f37a72daf46820a8d5b1b939f39e8aa3c6ce1
   Author: Ayman Nadeem <aymannadeem@github.com>
-  Date:   Mon Nov 27 12:47:27 2017
+  Date:   Mon Nov 27 12:47:27 2017 -0800
   
       Update LICENSE
 ---
 File: semgrep-grammars/src/tree-sitter-java/grammar.js
 Git repo name: tree-sitter-java
-Latest commit in repo: 81148c0902125150d616ea30190a630c86974a7a
+Latest commit in repo: 3c24aa9365985830421a3a7b6791b415961ea770
 Last change in file:
-  commit 123fab57882c7641766cf2efa4de0474ebdb62cd
-  Author: Bruno Mahé <bruno@bmahe.net>
-  Date:   Mon Aug 15 14:20:27 2022
+  commit e23cdc72ad33ed08ca47a65a24bff31405455948
+  Author: Andreas Humenberger <andreas.humenberger@symflower.com>
+  Date:   Wed Feb 22 05:22:04 2023 +0100
   
-      Inferred parameters needs to support reserved identifiers
+      fix, Local variable declaration with generic types and scoped type identifier
+      
+      This change partially reverts a change from #125 which caused the regression.
+      The test case introduced by #125 still exists and works.
+      
+      Fixes #138
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 657bf6e4a647a4aca6b6a198c3ca93b3a91d8db8
+Latest commit in repo: 4977c7ec89616d7ad97341eb0602fbc8670d1d59
 Last change in file:
-  commit 278bae677938ccd03f33bcc0e09c98e3204d21a5
-  Author: Nat Mote <nat@r2c.dev>
-  Date:   Mon Sep 12 11:32:51 2022
+  commit f43ebe96711077d6fe1ca01de2bfadcd38d453e1
+  Author: Martin Jambon <martin@r2c.dev>
+  Date:   Thu Oct 20 17:22:36 2022 -0700
   
-      java: Parse semgrep ellipsis as a statement
-      
-      This should cover pattern parsing for nearly all patterns. There are
-      still a few pattern features for GA languages that won't work with this
-      parser (dots method chaining, deep expr operator, etc.). We'll add those
-      later.
-      
-      Test plan: Automated tests
+      Copy and adapt Semgrep extensions for Java to Apex, including tests.
 ---
