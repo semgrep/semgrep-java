@@ -27,11 +27,16 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: c688b0e428c5630719eabb883b9321013411f079
+Latest commit in repo: 716d364dfdfa633c70893c739f7af41cef0e48d4
 Last change in file:
-  commit f43ebe96711077d6fe1ca01de2bfadcd38d453e1
-  Author: Martin Jambon <martin@r2c.dev>
-  Date:   Thu Oct 20 17:22:36 2022 -0700
+  commit 716d364dfdfa633c70893c739f7af41cef0e48d4
+  Author: pad <pad@r2c.dev>
+  Date:   Tue May 30 12:21:05 2023 +0200
   
-      Copy and adapt Semgrep extensions for Java to Apex, including tests.
+      Java: support record pattern and method header
+      
+      This will help https://github.com/returntocorp/semgrep/issues/7911
+      
+      test plan:
+      ./test-lang java
 ---

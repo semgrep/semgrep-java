@@ -8,6 +8,8 @@
 open! Sexplib.Conv
 open Tree_sitter_run
 
+type string_fragment = Token.t (* pattern "[^\"\\\\]+" *)
+
 type binary_integer_literal = Token.t
 
 type decimal_floating_point_literal = Token.t
@@ -24,8 +26,6 @@ type character_literal = Token.t
 
 type decimal_integer_literal = Token.t
 
-type pat_9347a80 = Token.t (* pattern "\"[^\"]*" *)
-
 type block_comment_explicit = unit (* blank *)
 
 type integral_type = [
@@ -38,28 +38,28 @@ type integral_type = [
 
 type octal_integer_literal = Token.t
 
-type string_fragment = Token.t (* pattern "[^\"\\\\]+" *)
-
-type hex_integer_literal = Token.t
-
-type line_comment = Token.t
-
-type requires_modifier = [
-    `Tran of Token.t (* "transitive" *)
-  | `Static of Token.t (* "static" *)
-]
-
-type block_comment = Token.t
-
-type pat_98d585a = Token.t (* pattern "[^\"]+" *)
-
 type reserved_identifier = [
     `Open of Token.t (* "open" *)
   | `Module of Token.t (* "module" *)
   | `Record of Token.t (* "record" *)
 ]
 
+type hex_integer_literal = Token.t
+
+type line_comment = Token.t
+
+type block_comment = Token.t
+
+type pat_9347a80 = Token.t (* pattern "\"[^\"]*" *)
+
+type requires_modifier = [
+    `Tran of Token.t (* "transitive" *)
+  | `Static of Token.t (* "static" *)
+]
+
 type line_comment_explicit = unit (* blank *)
+
+type pat_98d585a = Token.t (* pattern "[^\"]+" *)
 
 type floating_point_type = [
     `Float of Token.t (* "float" *)
@@ -83,14 +83,6 @@ type escape_sequence_ = [
   | `Esc_seq of escape_sequence (*tok*)
 ]
 
-type multiline_string_fragment = [
-    `Pat_98d585a of pat_98d585a
-  | `Pat_9347a80_rep_pat_98d585a of (
-        pat_9347a80
-      * pat_98d585a list (* zero or more *)
-    )
-]
-
 type anon_choice_id_0e59f50 = [
     `Id of identifier (*tok*)
   | `Choice_open of reserved_identifier
@@ -100,6 +92,14 @@ type name = [
     `Id of identifier (*tok*)
   | `Choice_open of reserved_identifier
   | `Scoped_id of (name * Token.t (* "." *) * identifier (*tok*))
+]
+
+type multiline_string_fragment = [
+    `Pat_98d585a of pat_98d585a
+  | `Pat_9347a80_rep_pat_98d585a of (
+        pat_9347a80
+      * pat_98d585a list (* zero or more *)
+    )
 ]
 
 type inferred_parameters = (
@@ -136,20 +136,6 @@ type string_literal = [
     )
 ]
 
-type literal = [
-    `Deci_int_lit of decimal_integer_literal (*tok*)
-  | `Hex_int_lit of hex_integer_literal (*tok*)
-  | `Octal_int_lit of octal_integer_literal (*tok*)
-  | `Bin_int_lit of binary_integer_literal (*tok*)
-  | `Deci_floa_point_lit of decimal_floating_point_literal (*tok*)
-  | `Hex_floa_point_lit of hex_floating_point_literal (*tok*)
-  | `True of Token.t (* "true" *)
-  | `False of Token.t (* "false" *)
-  | `Char_lit of character_literal (*tok*)
-  | `Str_lit of string_literal
-  | `Null_lit of Token.t (* "null" *)
-]
-
 type module_directive = [
     `Requis_module_dire of (
         Token.t (* "requires" *)
@@ -178,6 +164,20 @@ type module_directive = [
       * (Token.t (* "," *) * name) list (* zero or more *)
       * Token.t (* ";" *)
     )
+]
+
+type literal = [
+    `Deci_int_lit of decimal_integer_literal (*tok*)
+  | `Hex_int_lit of hex_integer_literal (*tok*)
+  | `Octal_int_lit of octal_integer_literal (*tok*)
+  | `Bin_int_lit of binary_integer_literal (*tok*)
+  | `Deci_floa_point_lit of decimal_floating_point_literal (*tok*)
+  | `Hex_floa_point_lit of hex_floating_point_literal (*tok*)
+  | `True of Token.t (* "true" *)
+  | `False of Token.t (* "false" *)
+  | `Char_lit of character_literal (*tok*)
+  | `Str_lit of string_literal
+  | `Null_lit of Token.t (* "null" *)
 ]
 
 type module_body = (
@@ -362,23 +362,21 @@ and class_body = (
 )
 
 and class_body_declaration = [
-    `Field_decl of (
-        modifiers option
-      * unannotated_type
-      * variable_declarator_list
-      * Token.t (* ";" *)
-    )
-  | `Record_decl of record_declaration
-  | `Meth_decl of method_declaration
-  | `Comp_cons_decl of (modifiers option * identifier (*tok*) * block)
-  | `Class_decl of class_declaration
-  | `Inte_decl of interface_declaration
-  | `Anno_type_decl of annotation_type_declaration
-  | `Enum_decl of enum_declaration
-  | `Blk of block
-  | `Static_init of (Token.t (* "static" *) * block)
-  | `Cons_decl of constructor_declaration
-  | `SEMI of Token.t (* ";" *)
+    `Choice_field_decl of [
+        `Field_decl of field_declaration
+      | `Record_decl of record_declaration
+      | `Meth_decl of method_declaration
+      | `Comp_cons_decl of compact_constructor_declaration
+      | `Class_decl of class_declaration
+      | `Inte_decl of interface_declaration
+      | `Anno_type_decl of annotation_type_declaration
+      | `Enum_decl of enum_declaration
+      | `Blk of block
+      | `Static_init of static_initializer
+      | `Cons_decl of constructor_declaration
+      | `SEMI of Token.t (* ";" *)
+    ]
+  | `Semg_ellips of Token.t (* "..." *)
 ]
 
 and class_declaration = (
@@ -394,6 +392,12 @@ and class_declaration = (
 
 and class_literal = (
     unannotated_type * Token.t (* "." *) * Token.t (* "class" *)
+)
+
+and compact_constructor_declaration = (
+    modifiers option
+  * identifier (*tok*)
+  * block
 )
 
 and constant_declaration = (
@@ -628,6 +632,13 @@ and field_access = (
       | `Choice_open of reserved_identifier
       | `This of Token.t (* "this" *)
     ]
+)
+
+and field_declaration = (
+    modifiers option
+  * unannotated_type
+  * variable_declarator_list
+  * Token.t (* ";" *)
 )
 
 and finally_clause = (Token.t (* "finally" *) * block)
@@ -904,6 +915,8 @@ and statement = [
   | `Semg_ellips of Token.t (* "..." *)
 ]
 
+and static_initializer = (Token.t (* "static" *) * block)
+
 and super_interfaces = (Token.t (* "implements" *) * type_list)
 
 and superclass = (Token.t (* "extends" *) * type_)
@@ -1074,25 +1087,28 @@ and yield_statement = (
     Token.t (* "yield" *) * expression * Token.t (* ";" *)
 )
 
+type partials = [ `Part_meth of (modifiers option * method_header) ]
+
 type program = [
     `Rep_stmt of statement list (* zero or more *)
   | `Cons_decl of constructor_declaration
   | `Exp of expression
+  | `Partis of partials
 ]
+
+type semgrep_ellipsis (* inlined *) = Token.t (* "..." *)
 
 type this (* inlined *) = Token.t (* "this" *)
 
 type asterisk (* inlined *) = Token.t (* "*" *)
 
-type super (* inlined *) = Token.t (* "super" *)
+type void_type (* inlined *) = Token.t (* "void" *)
 
 type false_ (* inlined *) = Token.t (* "false" *)
 
-type void_type (* inlined *) = Token.t (* "void" *)
-
 type true_ (* inlined *) = Token.t (* "true" *)
 
-type semgrep_ellipsis (* inlined *) = Token.t (* "..." *)
+type super (* inlined *) = Token.t (* "super" *)
 
 type null_literal (* inlined *) = Token.t (* "null" *)
 
@@ -1108,28 +1124,18 @@ type string_literal_ (* inlined *) = (
   * Token.t (* "\"" *)
 )
 
-type dummy_alias1 (* inlined *) = line_comment (*tok*)
-
-type dummy_alias0 (* inlined *) = block_comment (*tok*)
-
 type scoped_identifier (* inlined *) = (
     name * Token.t (* "." *) * identifier (*tok*)
 )
+
+type dummy_alias1 (* inlined *) = line_comment (*tok*)
+
+type dummy_alias0 (* inlined *) = block_comment (*tok*)
 
 type comment (* inlined *) = [
     `Line_comm_expl of line_comment_explicit (*tok*)
   | `Blk_comm_expl of block_comment_explicit (*tok*)
 ]
-
-type multiline_string_literal (* inlined *) = (
-    Token.t (* "\"\"\"" *)
-  * [
-        `Mult_str_frag of multiline_string_fragment
-      | `Esc_seq_ of escape_sequence_
-    ]
-      list (* zero or more *)
-  * Token.t (* "\"\"\"" *)
-)
 
 type import_declaration (* inlined *) = (
     Token.t (* "import" *)
@@ -1139,18 +1145,11 @@ type import_declaration (* inlined *) = (
   * Token.t (* ";" *)
 )
 
-type marker_annotation (* inlined *) = (Token.t (* "@" *) * name)
-
-type requires_module_directive (* inlined *) = (
-    Token.t (* "requires" *)
-  * requires_modifier list (* zero or more *)
-  * name
-  * Token.t (* ";" *)
-)
-
 type uses_module_directive (* inlined *) = (
     Token.t (* "uses" *) * name * Token.t (* ";" *)
 )
+
+type marker_annotation (* inlined *) = (Token.t (* "@" *) * name)
 
 type provides_module_directive (* inlined *) = (
     Token.t (* "provides" *)
@@ -1159,6 +1158,23 @@ type provides_module_directive (* inlined *) = (
   * name
   * (Token.t (* "," *) * name) list (* zero or more *)
   * Token.t (* ";" *)
+)
+
+type requires_module_directive (* inlined *) = (
+    Token.t (* "requires" *)
+  * requires_modifier list (* zero or more *)
+  * name
+  * Token.t (* ";" *)
+)
+
+type multiline_string_literal (* inlined *) = (
+    Token.t (* "\"\"\"" *)
+  * [
+        `Mult_str_frag of multiline_string_fragment
+      | `Esc_seq_ of escape_sequence_
+    ]
+      list (* zero or more *)
+  * Token.t (* "\"\"\"" *)
 )
 
 type exports_module_directive (* inlined *) = (
@@ -1218,12 +1234,6 @@ type cast_expression (* inlined *) = (
   * expression
 )
 
-type compact_constructor_declaration (* inlined *) = (
-    modifiers option
-  * identifier (*tok*)
-  * block
-)
-
 type element_value_array_initializer (* inlined *) = (
     Token.t (* "{" *)
   * (
@@ -1233,13 +1243,6 @@ type element_value_array_initializer (* inlined *) = (
       option
   * Token.t (* "," *) option
   * Token.t (* "}" *)
-)
-
-type field_declaration (* inlined *) = (
-    modifiers option
-  * unannotated_type
-  * variable_declarator_list
-  * Token.t (* ";" *)
 )
 
 type instanceof_expression (* inlined *) = (
@@ -1283,8 +1286,6 @@ type spread_parameter (* inlined *) = (
   * variable_declarator
 )
 
-type static_initializer (* inlined *) = (Token.t (* "static" *) * block)
-
 type ternary_expression (* inlined *) = (
     expression * Token.t (* "?" *) * expression * Token.t (* ":" *)
   * expression
@@ -1295,3 +1296,5 @@ type wildcard (* inlined *) = (
   * Token.t (* "?" *)
   * wildcard_bounds option
 )
+
+type partial_method (* inlined *) = (modifiers option * method_header)
