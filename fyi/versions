@@ -2,11 +2,13 @@ File: semgrep-grammars/src/tree-sitter-java/LICENSE
 Git repo name: tree-sitter-java
 Latest commit in repo: 3c24aa9365985830421a3a7b6791b415961ea770
 Last change in file:
-  commit 594f37a72daf46820a8d5b1b939f39e8aa3c6ce1
-  Author: Ayman Nadeem <aymannadeem@github.com>
-  Date:   Mon Nov 27 12:47:27 2017 -0800
+  commit 09d650def6cdf7f479f4b78f595e9ef5b58ce31e
+  Author: Yoann Padioleau <yoann.padioleau@gmail.com>
+  Date:   Mon Sep 19 09:37:51 2022 +0200
   
-      Update LICENSE
+      Merge pull request #124 from bkramer-relyance/bkramer/records_and_instanceof_final
+      
+      Fix issues with records and support instanceof final
 ---
 File: semgrep-grammars/src/tree-sitter-java/grammar.js
 Git repo name: tree-sitter-java
@@ -25,7 +27,7 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 4977c7ec89616d7ad97341eb0602fbc8670d1d59
+Latest commit in repo: c688b0e428c5630719eabb883b9321013411f079
 Last change in file:
   commit f43ebe96711077d6fe1ca01de2bfadcd38d453e1
   Author: Martin Jambon <martin@r2c.dev>
