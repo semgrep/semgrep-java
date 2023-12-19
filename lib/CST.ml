@@ -379,6 +379,7 @@ and class_body_declaration = [
       | `SEMI of Token.t (* ";" *)
     ]
   | `Semg_ellips of Token.t (* "..." *)
+  | `Semg_named_ellips of semgrep_named_ellipsis (*tok*)
 ]
 
 and class_declaration = (
@@ -825,6 +826,7 @@ and primary_expression = [
       | `Array_crea_exp of array_creation_expression
     ]
   | `Semg_ellips of Token.t (* "..." *)
+  | `Semg_named_ellips of semgrep_named_ellipsis (*tok*)
 ]
 
 and receiver_parameter = (
@@ -916,6 +918,7 @@ and statement = [
       | `Try_with_resous_stmt of try_with_resources_statement
     ]
   | `Semg_ellips of Token.t (* "..." *)
+  | `Semg_named_ellips of semgrep_named_ellipsis (*tok*)
 ]
 
 and static_initializer = (Token.t (* "static" *) * block)

@@ -854,6 +854,7 @@ let children_regexps : (string * Run.exp option) list = [
             Token (Literal ";");
           |];
           Token (Name "semgrep_ellipsis");
+          Token (Name "semgrep_named_ellipsis");
         |];
       );
       Token (Literal "}");
@@ -1098,6 +1099,7 @@ let children_regexps : (string * Run.exp option) list = [
             Token (Literal ";");
           |];
           Token (Name "semgrep_ellipsis");
+          Token (Name "semgrep_named_ellipsis");
         |];
       );
     ];
@@ -1653,6 +1655,7 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "array_creation_expression");
       |];
       Token (Name "semgrep_ellipsis");
+      Token (Name "semgrep_named_ellipsis");
     |];
   );
   "receiver_parameter",
@@ -1785,6 +1788,7 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "try_with_resources_statement");
       |];
       Token (Name "semgrep_ellipsis");
+      Token (Name "semgrep_named_ellipsis");
     |];
   );
   "static_initializer",
@@ -4278,6 +4282,10 @@ and trans_class_body ((kind, body) : mt) : CST.class_body =
                     `Semg_ellips (
                       trans_semgrep_ellipsis (Run.matcher_token v)
                     )
+                | Alt (2, v) ->
+                    `Semg_named_ellips (
+                      trans_semgrep_named_ellipsis (Run.matcher_token v)
+                    )
                 | _ -> assert false
                 )
               )
@@ -4753,6 +4761,10 @@ and trans_enum_body_declarations ((kind, body) : mt) : CST.enum_body_declaration
                 | Alt (1, v) ->
                     `Semg_ellips (
                       trans_semgrep_ellipsis (Run.matcher_token v)
+                    )
+                | Alt (2, v) ->
+                    `Semg_named_ellips (
+                      trans_semgrep_named_ellipsis (Run.matcher_token v)
                     )
                 | _ -> assert false
                 )
@@ -6038,6 +6050,10 @@ and trans_primary_expression ((kind, body) : mt) : CST.primary_expression =
           `Semg_ellips (
             trans_semgrep_ellipsis (Run.matcher_token v)
           )
+      | Alt (2, v) ->
+          `Semg_named_ellips (
+            trans_semgrep_named_ellipsis (Run.matcher_token v)
+          )
       | _ -> assert false
       )
   | Leaf _ -> assert false
@@ -6328,6 +6344,10 @@ and trans_statement ((kind, body) : mt) : CST.statement =
       | Alt (1, v) ->
           `Semg_ellips (
             trans_semgrep_ellipsis (Run.matcher_token v)
+          )
+      | Alt (2, v) ->
+          `Semg_named_ellips (
+            trans_semgrep_named_ellipsis (Run.matcher_token v)
           )
       | _ -> assert false
       )

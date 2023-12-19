@@ -842,6 +842,9 @@ and map_class_body_declaration (env : env) (x : CST.class_body_declaration) =
   | `Semg_ellips tok -> R.Case ("Semg_ellips",
       (* "..." *) token env tok
     )
+  | `Semg_named_ellips tok -> R.Case ("Semg_named_ellips",
+      (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
+    )
   )
 
 and map_class_declaration (env : env) ((v1, v2, v3, v4, v5, v6, v7, v8) : CST.class_declaration) =
@@ -1916,6 +1919,9 @@ and map_primary_expression (env : env) (x : CST.primary_expression) =
   | `Semg_ellips tok -> R.Case ("Semg_ellips",
       (* "..." *) token env tok
     )
+  | `Semg_named_ellips tok -> R.Case ("Semg_named_ellips",
+      (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
+    )
   )
 
 and map_receiver_parameter (env : env) ((v1, v2, v3, v4) : CST.receiver_parameter) =
@@ -2138,6 +2144,9 @@ and map_statement (env : env) (x : CST.statement) =
     )
   | `Semg_ellips tok -> R.Case ("Semg_ellips",
       (* "..." *) token env tok
+    )
+  | `Semg_named_ellips tok -> R.Case ("Semg_named_ellips",
+      (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
     )
   )
 
