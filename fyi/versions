@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-java/LICENSE
 Git repo name: tree-sitter-java
-Latest commit in repo: 83044af4950e9f1adb46a20f616d10934930ce7e
+Latest commit in repo: 3c24aa9365985830421a3a7b6791b415961ea770
 Last change in file:
   commit 594f37a72daf46820a8d5b1b939f39e8aa3c6ce1
   Author: Ayman Nadeem <aymannadeem@github.com>
@@ -10,26 +10,26 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-java/grammar.js
 Git repo name: tree-sitter-java
-Latest commit in repo: 83044af4950e9f1adb46a20f616d10934930ce7e
+Latest commit in repo: 3c24aa9365985830421a3a7b6791b415961ea770
 Last change in file:
-  commit 6b43c05b27ed0c3cb5dd2f44c5fd93d14b8d1457
-  Author: Amaan Qureshi <amaanq12@gmail.com>
-  Date:   Sun Sep 3 21:56:50 2023 -0400
+  commit e23cdc72ad33ed08ca47a65a24bff31405455948
+  Author: Andreas Humenberger <andreas.humenberger@symflower.com>
+  Date:   Wed Feb 22 05:22:04 2023 +0100
   
-      fix: allow semicolons in annotation_type_declaration
+      fix, Local variable declaration with generic types and scoped type identifier
+      
+      This change partially reverts a change from #125 which caused the regression.
+      The test case introduced by #125 still exists and works.
+      
+      Fixes #138
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: d20cb7ade827078cef32566205b658dff40ae755
+Latest commit in repo: 44699c44dedefb7c7b1e344ea662f867017eeaea
 Last change in file:
-  commit 716d364dfdfa633c70893c739f7af41cef0e48d4
-  Author: pad <pad@r2c.dev>
-  Date:   Tue May 30 12:21:05 2023 +0200
+  commit 44699c44dedefb7c7b1e344ea662f867017eeaea
+  Author: brandonspark <wu.brandonj@gmail.com>
+  Date:   Tue Dec 19 15:35:07 2023 -0800
   
-      Java: support record pattern and method header
-      
-      This will help https://github.com/returntocorp/semgrep/issues/7911
-      
-      test plan:
-      ./test-lang java
+      chore: allow named ellipsis as java param
 ---

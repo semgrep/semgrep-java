@@ -1,5 +1,4 @@
-const DIGITS = token(choice('0', seq(/[1-9]/, optional(seq(optional('_'), sep1(/[0-9]+/, /_+/))))))
-const DECIMAL_DIGITS = token(sep1(/[0-9]+/, '_'))
+const DIGITS = token(sep1(/[0-9]+/, /_+/))
 const HEX_DIGITS = token(sep1(/[A-Fa-f0-9]+/, '_'))
 const PREC = {
   // https://introcs.cs.princeton.edu/java/11precedence/
@@ -53,8 +52,9 @@ module.exports = grammar({
   inline: $ => [
     $._name,
     $._simple_type,
+    $._reserved_identifier,
     $._class_body_declaration,
-    $._variable_initializer,
+    $._variable_initializer
   ],
 
   conflicts: $ => [
@@ -70,18 +70,13 @@ module.exports = grammar({
     // Only conflicts in switch expressions
     [$.lambda_expression, $.primary_expression],
     [$.inferred_parameters, $.primary_expression],
-    [$.argument_list, $.record_pattern_body],
+    [$.class_literal, $.field_access],
   ],
 
   word: $ => $.identifier,
 
   rules: {
-    program: $ => repeat($._toplevel_statement),
-
-    _toplevel_statement: $ => choice(
-      $.statement,
-      $.method_declaration,
-    ),
+    program: $ => repeat($.statement),
 
     // Literals
 
@@ -111,7 +106,7 @@ module.exports = grammar({
     )),
 
     octal_integer_literal: $ => token(seq(
-      choice('0o', '0O', '0'),
+      choice('0o', '0O'),
       sep1(/[0-7]+/, '_'),
       optional(choice('l', 'L'))
     )),
@@ -123,10 +118,10 @@ module.exports = grammar({
     )),
 
     decimal_floating_point_literal: $ => token(choice(
-      seq(DECIMAL_DIGITS, '.', optional(DECIMAL_DIGITS), optional(seq((/[eE]/), optional(choice('-', '+')), DECIMAL_DIGITS)), optional(/[fFdD]/)),
-      seq('.', DECIMAL_DIGITS, optional(seq((/[eE]/), optional(choice('-', '+')), DECIMAL_DIGITS)), optional(/[fFdD]/)),
-      seq(DIGITS, /[eEpP]/, optional(choice('-', '+')), DECIMAL_DIGITS, optional(/[fFdD]/)),
-      seq(DIGITS, optional(seq((/[eE]/), optional(choice('-', '+')), DECIMAL_DIGITS)), (/[fFdD]/))
+      seq(DIGITS, '.', optional(DIGITS), optional(seq((/[eE]/), optional(choice('-', '+')), DIGITS)), optional(/[fFdD]/)),
+      seq('.', DIGITS, optional(seq((/[eE]/), optional(choice('-', '+')), DIGITS)), optional(/[fFdD]/)),
+      seq(DIGITS, /[eEpP]/, optional(choice('-', '+')), DIGITS, optional(/[fFdD]/)),
+      seq(DIGITS, optional(seq((/[eE]/), optional(choice('-', '+')), DIGITS)), (/[fFdD]/))
     )),
 
     hex_floating_point_literal: $ => token(seq(
@@ -163,7 +158,6 @@ module.exports = grammar({
       repeat(choice(
         $.string_fragment,
         $.escape_sequence,
-        $.string_interpolation,
       )),
       '"'
     ),
@@ -172,31 +166,27 @@ module.exports = grammar({
       repeat(choice(
         alias($._multiline_string_fragment, $.multiline_string_fragment),
         $._escape_sequence,
-        $.string_interpolation,
       )),
       '"""'
     ),
     // Workaround to https://github.com/tree-sitter/tree-sitter/issues/1156
     // We give names to the token() constructs containing a regexp
     // so as to obtain a node in the CST.
+    //
+    string_fragment: $ =>
+      token.immediate(prec(1, /[^"\\]+/)),
+    _multiline_string_fragment: () =>
+      prec.right(choice(
+        /[^"]+/,
+        seq(/"[^"]*/, repeat(/[^"]+/))
+      )),
 
-    string_fragment: _ => token.immediate(prec(1, /[^"\\]+/)),
-    _multiline_string_fragment: _ => choice(
-      /[^"\\]+/,
-      seq(/"([^"\\]|\\")*/),
-    ),
-
-    string_interpolation: $ => seq(
-      '\\{',
-      $.expression,
-      '}'
-    ),
-
-    _escape_sequence: $ => choice(
-      prec(2, token.immediate(seq('\\', /[^abfnrtvxu'\"\\\?]/))),
-      prec(1, $.escape_sequence)
-    ),
-    escape_sequence: _ => token.immediate(seq(
+    _escape_sequence: $ =>
+      choice(
+        prec(2, token.immediate(seq('\\', /[^abfnrtvxu'\"\\\?]/))),
+        prec(1, $.escape_sequence)
+      ),
+    escape_sequence: () => token.immediate(seq(
       '\\',
       choice(
         /[^xu0-7]/,
@@ -206,7 +196,7 @@ module.exports = grammar({
         /u{[0-9a-fA-F]+}/
       ))),
 
-    null_literal: _ => 'null',
+    null_literal: $ => 'null',
 
     // Expressions
 
@@ -223,19 +213,11 @@ module.exports = grammar({
       $.switch_expression,
     ),
 
-    cast_expression: $ => prec(PREC.CAST, choice(
-      seq(
-        '(',
-        field('type', $._type),
-        ')',
-        field('value', $.expression),
-      ),
-      seq(
-        '(',
-        sep1(field('type', $._type), '&'),
-        ')',
-        field('value', choice($.primary_expression, $.lambda_expression)),
-      ),
+    cast_expression: $ => prec(PREC.CAST, seq(
+      '(',
+      sep1(field('type', $._type), '&'),
+      ')',
+      field('value', $.expression)
     )),
 
     assignment_expression: $ => prec.right(PREC.ASSIGN, seq(
@@ -282,13 +264,8 @@ module.exports = grammar({
       field('left', $.expression),
       'instanceof',
       optional('final'),
-      choice(
-        seq(
-          field('right', $._type),
-          optional(field('name', choice($.identifier, $._reserved_identifier))),
-        ),
-        field('pattern', $.record_pattern),
-      ),
+      field('right', $._type),
+      field('name', optional(choice($.identifier, $._reserved_identifier)))
     )),
 
     lambda_expression: $ => seq(
@@ -346,7 +323,6 @@ module.exports = grammar({
       $.method_invocation,
       $.method_reference,
       $.array_creation_expression,
-      $.template_expression
     ),
 
     array_creation_expression: $ => prec.right(seq(
@@ -369,8 +345,6 @@ module.exports = grammar({
 
     parenthesized_expression: $ => seq('(', $.expression, ')'),
 
-    condition: $ => seq('(', $.expression, ')'),
-
     class_literal: $ => prec.dynamic(PREC.CLASS_LITERAL, seq($._unannotated_type, '.', 'class')),
 
     object_creation_expression: $ => choice(
@@ -380,14 +354,7 @@ module.exports = grammar({
 
     _unqualified_object_creation_expression: $ => prec.right(seq(
       'new',
-      choice(
-        seq(
-          repeat($._annotation),
-          field('type_arguments', $.type_arguments),
-          repeat($._annotation),
-        ),
-        repeat($._annotation),
-      ),
+      field('type_arguments', optional($.type_arguments)),
       field('type', $._simple_type),
       field('arguments', $.argument_list),
       optional($.class_body)
@@ -401,12 +368,6 @@ module.exports = grammar({
       )),
       '.',
       field('field', choice($.identifier, $._reserved_identifier, $.this))
-    ),
-
-    template_expression: $ => seq(
-      field('template_processor', $.primary_expression),
-      '.',
-      field('template_argument', $.string_literal)
     ),
 
     array_access: $ => seq(
@@ -490,33 +451,9 @@ module.exports = grammar({
     ),
 
     switch_label: $ => choice(
-      seq('case',
-        choice(
-          $.pattern,
-          commaSep1($.expression)
-        ),
-        optional($.guard)
-      ),
+      seq('case', commaSep1($.expression)),
       'default'
     ),
-
-    pattern: $ => choice(
-      $.type_pattern,
-      $.record_pattern,
-    ),
-    type_pattern: $ => seq($._unannotated_type, choice($.identifier, $._reserved_identifier)),
-    record_pattern: $ => seq(choice($.identifier, $._reserved_identifier, $.generic_type), $.record_pattern_body),
-    record_pattern_body: $ => seq('(', commaSep(choice($.record_pattern_component, $.record_pattern)), ')'),
-    record_pattern_component: $ => choice(
-      $.underscore_pattern,
-      seq(
-        $._unannotated_type,
-        choice($.identifier, $._reserved_identifier)
-    )),
-
-    underscore_pattern: $ => '_',
-
-    guard: $ => seq('when', $.expression),
 
     // Statements
 
@@ -647,14 +584,14 @@ module.exports = grammar({
 
     if_statement: $ => prec.right(seq(
       'if',
-      field('condition', $.condition),
+      field('condition', $.parenthesized_expression),
       field('consequence', $.statement),
       optional(seq('else', field('alternative', $.statement)))
     )),
 
     while_statement: $ => seq(
       'while',
-      field('condition', $.condition),
+      field('condition', $.parenthesized_expression),
       field('body', $.statement)
     ),
 
@@ -1020,15 +957,13 @@ module.exports = grammar({
     ),
 
     annotation_type_body: $ => seq(
-      '{',
-      repeat(choice(
+      '{', repeat(choice(
         $.annotation_type_element_declaration,
         $.constant_declaration,
         $.class_declaration,
         $.interface_declaration,
         $.enum_declaration,
-        $.annotation_type_declaration,
-        ';',
+        $.annotation_type_declaration
       )),
       '}'
     ),
@@ -1036,7 +971,7 @@ module.exports = grammar({
     annotation_type_element_declaration: $ => seq(
       optional($.modifiers),
       field('type', $._unannotated_type),
-      field('name', choice($.identifier, $._reserved_identifier)),
+      field('name', $.identifier),
       '(', ')',
       field('dimensions', optional($.dimensions)),
       optional($._default_value),
@@ -1095,7 +1030,7 @@ module.exports = grammar({
     ),
 
     _variable_declarator_id: $ => seq(
-      field('name', choice($.identifier, $._reserved_identifier, $.underscore_pattern)),
+      field('name', choice($.identifier, $._reserved_identifier)),
       field('dimensions', optional($.dimensions))
     ),
 
@@ -1197,13 +1132,8 @@ module.exports = grammar({
 
     formal_parameters: $ => seq(
       '(',
-      choice(
-        $.receiver_parameter,
-        seq(
-          optional(seq($.receiver_parameter, ',')),
-          commaSep(choice($.formal_parameter, $.spread_parameter)),
-        ),
-      ),
+      optional($.receiver_parameter),
+      commaSep(choice($.formal_parameter, $.spread_parameter)),
       ')'
     ),
 
@@ -1216,7 +1146,7 @@ module.exports = grammar({
     receiver_parameter: $ => seq(
       repeat($._annotation),
       $._unannotated_type,
-      repeat(seq($.identifier, '.')),
+      optional(seq($.identifier, '.')),
       $.this
     ),
 
@@ -1250,24 +1180,18 @@ module.exports = grammar({
       field('body', $.block)
     ),
 
-    _reserved_identifier: $ => prec(-3, alias(
-      choice(
-        'open',
-        'module',
-        'record',
-        'with',
-        'yield',
-        'sealed',
-      ),
-      $.identifier,
-    )),
+    _reserved_identifier: $ => alias(choice(
+      'open',
+      'module',
+      'record'
+    ), $.identifier),
 
     this: $ => 'this',
 
     super: $ => 'super',
 
     // https://docs.oracle.com/javase/specs/jls/se8/html/jls-3.html#jls-IdentifierChars
-    identifier: $ => /[\p{L}_$][\p{L}\p{Nd}\u00A2_$]*/,
+    identifier: $ => /[\p{L}_$][\p{L}\p{Nd}_$]*/,
 
     // http://stackoverflow.com/questions/13014947/regex-to-match-a-c-style-multiline-comment/36328890#36328890
     comment: $ => choice(
