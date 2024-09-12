@@ -50,6 +50,7 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "asterisk", None;
   "imm_tok_bslash_pat_36cdeeb", None;
+  "block_comment", None;
   "hex_integer_literal", None;
   "null_literal", None;
   "true", None;
@@ -73,6 +74,7 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "super", None;
   "void_type", None;
+  "line_comment", None;
   "identifier", None;
   "boolean_type", None;
   "octal_integer_literal", None;
@@ -2283,6 +2285,10 @@ let trans_imm_tok_bslash_pat_36cdeeb ((kind, body) : mt) : CST.imm_tok_bslash_pa
   | Leaf v -> v
   | Children _ -> assert false
 
+let trans_block_comment ((kind, body) : mt) : CST.block_comment =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
 
 let trans_hex_integer_literal ((kind, body) : mt) : CST.hex_integer_literal =
   match body with
@@ -2358,6 +2364,10 @@ let trans_void_type ((kind, body) : mt) : CST.void_type =
   | Leaf v -> v
   | Children _ -> assert false
 
+let trans_line_comment ((kind, body) : mt) : CST.line_comment =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
 
 let trans_identifier ((kind, body) : mt) : CST.identifier =
   match body with
@@ -7256,14 +7266,53 @@ let trans_program ((kind, body) : mt) : CST.program =
       )
   | Leaf _ -> assert false
 
+(*
+   Costly operation that translates a whole tree or subtree.
+
+   The first pass translates it into a generic tree structure suitable
+   to guess which node corresponds to each grammar rule.
+   The second pass is a translation into a typed tree where each grammar
+   node has its own type.
+
+   This function is called:
+   - once on the root of the program after removing extras
+     (comments and other nodes that occur anywhere independently from
+     the grammar);
+   - once of each extra node, resulting in its own independent tree of type
+     'extra'.
+*)
+let translate_tree src node trans_x =
+  let matched_tree = Run.match_tree children_regexps src node in
+  Option.map trans_x matched_tree
+
+
+let translate_extra src (node : Tree_sitter_output_t.node) : CST.extra option =
+  match node.type_ with
+  | "line_comment" ->
+      (match translate_tree src node trans_line_comment with
+      | None -> None
+      | Some x -> Some (Line_comment (Run.get_loc node, x)))
+  | "block_comment" ->
+      (match translate_tree src node trans_block_comment with
+      | None -> None
+      | Some x -> Some (Block_comment (Run.get_loc node, x)))
+  | _ -> None
+
+let translate_root src root_node =
+  translate_tree src root_node trans_program
+
 let parse_input_tree input_tree =
   let orig_root_node = Tree_sitter_parsing.root input_tree in
   let src = Tree_sitter_parsing.src input_tree in
   let errors = Run.extract_errors src orig_root_node in
-  let root_node = Run.remove_extras ~extras orig_root_node in
-  let matched_tree = Run.match_tree children_regexps src root_node in
-  let opt_program = Option.map trans_program matched_tree in
-  Parsing_result.create src opt_program errors
+  let opt_program, extras =
+     Run.translate
+       ~extras
+       ~translate_root:(translate_root src)
+       ~translate_extra:(translate_extra src)
+       orig_root_node
+  in
+  Parsing_result.create src opt_program extras errors
 
 let string ?src_file contents =
   let input_tree = parse_source_string ?src_file contents in
