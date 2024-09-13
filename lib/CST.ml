@@ -1305,9 +1305,9 @@ type wildcard (* inlined *) = (
 
 type partial_method (* inlined *) = (modifiers option * method_header)
 
-type extra = 
-    Line_comment of Loc.t * line_comment
-  | Block_comment of Loc.t * block_comment
-
+type extra = [
+    `Line_comment of Loc.t * line_comment
+  | `Block_comment of Loc.t * block_comment
+]
 
 type extras = extra list
