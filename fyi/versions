@@ -2,29 +2,30 @@ File: semgrep-grammars/src/tree-sitter-java/LICENSE
 Git repo name: tree-sitter-java
 Latest commit in repo: 3c24aa9365985830421a3a7b6791b415961ea770
 Last change in file:
-  commit 3c24aa9365985830421a3a7b6791b415961ea770
-  Author: Yoann Padioleau <yoann.padioleau@gmail.com>
-  Date:   Thu Feb 23 20:14:04 2023 +0100
+  commit 594f37a72daf46820a8d5b1b939f39e8aa3c6ce1
+  Author: Ayman Nadeem <aymannadeem@github.com>
+  Date:   Mon Nov 27 12:47:27 2017 -0800
   
-      Merge pull request #139 from ahumenberger/fix-local-variable-declaration
-      
-      fix, Local variable declaration with generic types and scoped type id…
+      Update LICENSE
 ---
 File: semgrep-grammars/src/tree-sitter-java/grammar.js
 Git repo name: tree-sitter-java
 Latest commit in repo: 3c24aa9365985830421a3a7b6791b415961ea770
 Last change in file:
-  commit 3c24aa9365985830421a3a7b6791b415961ea770
-  Author: Yoann Padioleau <yoann.padioleau@gmail.com>
-  Date:   Thu Feb 23 20:14:04 2023 +0100
+  commit e23cdc72ad33ed08ca47a65a24bff31405455948
+  Author: Andreas Humenberger <andreas.humenberger@symflower.com>
+  Date:   Wed Feb 22 05:22:04 2023 +0100
   
-      Merge pull request #139 from ahumenberger/fix-local-variable-declaration
+      fix, Local variable declaration with generic types and scoped type identifier
       
-      fix, Local variable declaration with generic types and scoped type id…
+      This change partially reverts a change from #125 which caused the regression.
+      The test case introduced by #125 still exists and works.
+      
+      Fixes #138
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 091f5438fc0c15b80217f00e5b94ec0e55517383
+Latest commit in repo: dcba33daef997145c6f5ea4fc9b744c9516a7f16
 Last change in file:
   commit b43d5527a5dc9e89553798c14e958e3d5e4c8397
   Author: brandonspark <wu.brandonj@gmail.com>
