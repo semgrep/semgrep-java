@@ -18,7 +18,7 @@ type escape_sequence = Token.t
 
 type character_literal = Token.t
 
-type semgrep_named_ellipsis = Token.t (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *)
+type string_fragment = Token.t (* pattern "[^\"\\\\]+" *)
 
 type integral_type = [
     `Byte of Token.t (* "byte" *)
@@ -42,6 +42,8 @@ type identifier =
 
 type hex_floating_point_literal = Token.t
 
+type semgrep_named_ellipsis = Token.t (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *)
+
 type reserved_identifier = [
     `Choice_open of [
         `Open of Token.t (* "open" *)
@@ -54,8 +56,6 @@ type reserved_identifier = [
 ]
 
 type decimal_floating_point_literal = Token.t
-
-type string_fragment = Token.t (* pattern "[^\"\\\\]+" *)
 
 type requires_modifier = [
     `Tran of Token.t (* "transitive" *)
@@ -1191,10 +1191,13 @@ type program = [
   | `Cons_decl of constructor_declaration
   | `Exp of expression
   | `Partis of partials
-  | `Semg_exp of (Token.t (* "__SEMGREP_EXPRESSION" *) * expression)
 ]
 
+type underscore_pattern (* inlined *) = Token.t (* "_" *)
+
 type true_ (* inlined *) = Token.t (* "true" *)
+
+type void_type (* inlined *) = Token.t (* "void" *)
 
 type null_literal (* inlined *) = Token.t (* "null" *)
 
@@ -1204,21 +1207,17 @@ type asterisk (* inlined *) = Token.t (* "*" *)
 
 type line_comment (* inlined *) = Token.t
 
-type underscore_pattern (* inlined *) = Token.t (* "_" *)
-
 type boolean_type (* inlined *) = Token.t (* "boolean" *)
 
 type this (* inlined *) = Token.t (* "this" *)
 
-type void_type (* inlined *) = Token.t (* "void" *)
+type block_comment (* inlined *) = Token.t
+
+type semgrep_ellipsis (* inlined *) = Token.t (* "..." *)
 
 type super (* inlined *) = Token.t (* "super" *)
 
 type semgrep_metavariable (* inlined *) = Token.t
-
-type block_comment (* inlined *) = Token.t
-
-type semgrep_ellipsis (* inlined *) = Token.t (* "..." *)
 
 type scoped_identifier (* inlined *) = (
     name * Token.t (* "." *) * identifier (*tok*)
@@ -1226,16 +1225,16 @@ type scoped_identifier (* inlined *) = (
 
 type marker_annotation (* inlined *) = (Token.t (* "@" *) * name)
 
-type uses_module_directive (* inlined *) = (
-    Token.t (* "uses" *) * name * Token.t (* ";" *)
-)
-
 type import_declaration (* inlined *) = (
     Token.t (* "import" *)
   * Token.t (* "static" *) option
   * name
   * (Token.t (* "." *) * Token.t (* "*" *)) option
   * Token.t (* ";" *)
+)
+
+type uses_module_directive (* inlined *) = (
+    Token.t (* "uses" *) * name * Token.t (* ";" *)
 )
 
 type requires_module_directive (* inlined *) = (
@@ -1389,10 +1388,6 @@ type wildcard (* inlined *) = (
 )
 
 type partial_method (* inlined *) = (modifiers option * method_header)
-
-type semgrep_expression (* inlined *) = (
-    Token.t (* "__SEMGREP_EXPRESSION" *) * expression
-)
 
 type extra = [
     `Line_comment of Loc.t * line_comment

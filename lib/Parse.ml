@@ -33,8 +33,7 @@ let extras = [
 
 let children_regexps : (string * Run.exp option) list = [
   "identifier", None;
-  "this", None;
-  "underscore_pattern", None;
+  "true", None;
   "boolean_type", None;
   "octal_integer_literal", None;
   "false", None;
@@ -45,14 +44,14 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal "double");
     |];
   );
-  "semgrep_named_ellipsis", None;
+  "void_type", None;
   "asterisk", None;
   "line_comment", None;
   "block_comment", None;
   "hex_floating_point_literal", None;
   "escape_sequence", None;
   "decimal_floating_point_literal", None;
-  "true", None;
+  "underscore_pattern", None;
   "imm_tok_bslash_pat_60d9bc8", None;
   "hex_integer_literal", None;
   "reserved_identifier",
@@ -68,7 +67,6 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal "yield");
     |];
   );
-  "void_type", None;
   "character_literal", None;
   "requires_modifier",
   Some (
@@ -78,7 +76,7 @@ let children_regexps : (string * Run.exp option) list = [
     |];
   );
   "pat_22cdef7", None;
-  "super", None;
+  "this", None;
   "integral_type",
   Some (
     Alt [|
@@ -89,9 +87,11 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal "char");
     |];
   );
-  "string_fragment", None;
+  "super", None;
+  "semgrep_named_ellipsis", None;
   "decimal_integer_literal", None;
   "semgrep_ellipsis", None;
+  "string_fragment", None;
   "pat_3a2a380", None;
   "null_literal", None;
   "binary_integer_literal", None;
@@ -160,6 +160,18 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "pat_3a2a380");
       Token (Name "pat_22cdef7");
     |];
+  );
+  "uses_module_directive",
+  Some (
+    Seq [
+      Token (Literal "uses");
+      Alt [|
+        Token (Name "identifier");
+        Token (Name "reserved_identifier");
+        Token (Name "scoped_identifier");
+      |];
+      Token (Literal ";");
+    ];
   );
   "opens_module_directive",
   Some (
@@ -233,18 +245,6 @@ let children_regexps : (string * Run.exp option) list = [
           );
         ];
       );
-      Token (Literal ";");
-    ];
-  );
-  "uses_module_directive",
-  Some (
-    Seq [
-      Token (Literal "uses");
-      Alt [|
-        Token (Name "identifier");
-        Token (Name "reserved_identifier");
-        Token (Name "scoped_identifier");
-      |];
       Token (Literal ";");
     ];
   );
@@ -2270,13 +2270,6 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "method_header");
     ];
   );
-  "semgrep_expression",
-  Some (
-    Seq [
-      Token (Literal "__SEMGREP_EXPRESSION");
-      Token (Name "expression");
-    ];
-  );
   "partials",
   Some (
     Alt [|
@@ -2292,7 +2285,6 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "constructor_declaration");
       Token (Name "expression");
       Token (Name "partials");
-      Token (Name "semgrep_expression");
     |];
   );
 ]
@@ -2302,12 +2294,7 @@ let trans_identifier ((kind, body) : mt) : CST.identifier =
   | Leaf v -> v
   | Children _ -> assert false
 
-let trans_this ((kind, body) : mt) : CST.this =
-  match body with
-  | Leaf v -> v
-  | Children _ -> assert false
-
-let trans_underscore_pattern ((kind, body) : mt) : CST.underscore_pattern =
+let trans_true_ ((kind, body) : mt) : CST.true_ =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
@@ -2343,7 +2330,7 @@ let trans_floating_point_type ((kind, body) : mt) : CST.floating_point_type =
       )
   | Leaf _ -> assert false
 
-let trans_semgrep_named_ellipsis ((kind, body) : mt) : CST.semgrep_named_ellipsis =
+let trans_void_type ((kind, body) : mt) : CST.void_type =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
@@ -2378,7 +2365,7 @@ let trans_decimal_floating_point_literal ((kind, body) : mt) : CST.decimal_float
   | Leaf v -> v
   | Children _ -> assert false
 
-let trans_true_ ((kind, body) : mt) : CST.true_ =
+let trans_underscore_pattern ((kind, body) : mt) : CST.underscore_pattern =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
@@ -2431,11 +2418,6 @@ let trans_reserved_identifier ((kind, body) : mt) : CST.reserved_identifier =
       )
   | Leaf _ -> assert false
 
-let trans_void_type ((kind, body) : mt) : CST.void_type =
-  match body with
-  | Leaf v -> v
-  | Children _ -> assert false
-
 let trans_character_literal ((kind, body) : mt) : CST.character_literal =
   match body with
   | Leaf v -> v
@@ -2462,7 +2444,7 @@ let trans_pat_22cdef7 ((kind, body) : mt) : CST.pat_22cdef7 =
   | Leaf v -> v
   | Children _ -> assert false
 
-let trans_super ((kind, body) : mt) : CST.super =
+let trans_this ((kind, body) : mt) : CST.this =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
@@ -2495,11 +2477,15 @@ let trans_integral_type ((kind, body) : mt) : CST.integral_type =
       )
   | Leaf _ -> assert false
 
-let trans_string_fragment ((kind, body) : mt) : CST.string_fragment =
+let trans_super ((kind, body) : mt) : CST.super =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
 
+let trans_semgrep_named_ellipsis ((kind, body) : mt) : CST.semgrep_named_ellipsis =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
 
 let trans_decimal_integer_literal ((kind, body) : mt) : CST.decimal_integer_literal =
   match body with
@@ -2507,6 +2493,11 @@ let trans_decimal_integer_literal ((kind, body) : mt) : CST.decimal_integer_lite
   | Children _ -> assert false
 
 let trans_semgrep_ellipsis ((kind, body) : mt) : CST.semgrep_ellipsis =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
+
+let trans_string_fragment ((kind, body) : mt) : CST.string_fragment =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
@@ -2520,6 +2511,7 @@ let trans_null_literal ((kind, body) : mt) : CST.null_literal =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
+
 
 let trans_binary_integer_literal ((kind, body) : mt) : CST.binary_integer_literal =
   match body with
@@ -2664,6 +2656,35 @@ let trans_multiline_string_fragment ((kind, body) : mt) : CST.multiline_string_f
       | Alt (1, v) ->
           `Pat_22cdef7 (
             trans_pat_22cdef7 (Run.matcher_token v)
+          )
+      | _ -> assert false
+      )
+  | Leaf _ -> assert false
+
+let trans_uses_module_directive ((kind, body) : mt) : CST.uses_module_directive =
+  match body with
+  | Children v ->
+      (match v with
+      | Seq [v0; v1; v2] ->
+          (
+            Run.trans_token (Run.matcher_token v0),
+            (match v1 with
+            | Alt (0, v) ->
+                `Id (
+                  trans_identifier (Run.matcher_token v)
+                )
+            | Alt (1, v) ->
+                `Rese_id (
+                  trans_reserved_identifier (Run.matcher_token v)
+                )
+            | Alt (2, v) ->
+                `Scoped_id (
+                  trans_scoped_identifier (Run.matcher_token v)
+                )
+            | _ -> assert false
+            )
+            ,
+            Run.trans_token (Run.matcher_token v2)
           )
       | _ -> assert false
       )
@@ -2862,35 +2883,6 @@ let trans_exports_module_directive ((kind, body) : mt) : CST.exports_module_dire
       )
   | Leaf _ -> assert false
 
-
-let trans_uses_module_directive ((kind, body) : mt) : CST.uses_module_directive =
-  match body with
-  | Children v ->
-      (match v with
-      | Seq [v0; v1; v2] ->
-          (
-            Run.trans_token (Run.matcher_token v0),
-            (match v1 with
-            | Alt (0, v) ->
-                `Id (
-                  trans_identifier (Run.matcher_token v)
-                )
-            | Alt (1, v) ->
-                `Rese_id (
-                  trans_reserved_identifier (Run.matcher_token v)
-                )
-            | Alt (2, v) ->
-                `Scoped_id (
-                  trans_scoped_identifier (Run.matcher_token v)
-                )
-            | _ -> assert false
-            )
-            ,
-            Run.trans_token (Run.matcher_token v2)
-          )
-      | _ -> assert false
-      )
-  | Leaf _ -> assert false
 
 let trans_provides_module_directive ((kind, body) : mt) : CST.provides_module_directive =
   match body with
@@ -7350,19 +7342,6 @@ let trans_partial_method ((kind, body) : mt) : CST.partial_method =
 
 
 
-let trans_semgrep_expression ((kind, body) : mt) : CST.semgrep_expression =
-  match body with
-  | Children v ->
-      (match v with
-      | Seq [v0; v1] ->
-          (
-            Run.trans_token (Run.matcher_token v0),
-            trans_expression (Run.matcher_token v1)
-          )
-      | _ -> assert false
-      )
-  | Leaf _ -> assert false
-
 let trans_partials ((kind, body) : mt) : CST.partials =
   match body with
   | Children v ->
@@ -7396,10 +7375,6 @@ let trans_program ((kind, body) : mt) : CST.program =
       | Alt (3, v) ->
           `Partis (
             trans_partials (Run.matcher_token v)
-          )
-      | Alt (4, v) ->
-          `Semg_exp (
-            trans_semgrep_expression (Run.matcher_token v)
           )
       | _ -> assert false
       )
