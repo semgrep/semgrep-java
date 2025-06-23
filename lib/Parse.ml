@@ -34,7 +34,6 @@ let extras = [
 let children_regexps : (string * Run.exp option) list = [
   "identifier", None;
   "true", None;
-  "underscore_pattern", None;
   "boolean_type", None;
   "octal_integer_literal", None;
   "false", None;
@@ -45,12 +44,14 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal "double");
     |];
   );
+  "void_type", None;
   "asterisk", None;
   "line_comment", None;
   "block_comment", None;
   "hex_floating_point_literal", None;
   "escape_sequence", None;
   "decimal_floating_point_literal", None;
+  "underscore_pattern", None;
   "imm_tok_bslash_pat_60d9bc8", None;
   "hex_integer_literal", None;
   "reserved_identifier",
@@ -66,7 +67,6 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal "yield");
     |];
   );
-  "void_type", None;
   "character_literal", None;
   "requires_modifier",
   Some (
@@ -161,6 +161,18 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "pat_22cdef7");
     |];
   );
+  "uses_module_directive",
+  Some (
+    Seq [
+      Token (Literal "uses");
+      Alt [|
+        Token (Name "identifier");
+        Token (Name "reserved_identifier");
+        Token (Name "scoped_identifier");
+      |];
+      Token (Literal ";");
+    ];
+  );
   "opens_module_directive",
   Some (
     Seq [
@@ -233,18 +245,6 @@ let children_regexps : (string * Run.exp option) list = [
           );
         ];
       );
-      Token (Literal ";");
-    ];
-  );
-  "uses_module_directive",
-  Some (
-    Seq [
-      Token (Literal "uses");
-      Alt [|
-        Token (Name "identifier");
-        Token (Name "reserved_identifier");
-        Token (Name "scoped_identifier");
-      |];
       Token (Literal ";");
     ];
   );
@@ -1782,6 +1782,7 @@ let children_regexps : (string * Run.exp option) list = [
       |];
       Token (Name "semgrep_ellipsis");
       Token (Name "semgrep_named_ellipsis");
+      Token (Name "typed_metavariable_declaration");
     |];
   );
   "static_initializer",
@@ -2087,6 +2088,18 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal ")");
     ];
   );
+  "typed_metavariable_declaration",
+  Some (
+    Seq [
+      Token (Literal "(");
+      Token (Name "type");
+      Token (Name "identifier");
+      Token (Literal ")");
+      Token (Literal "=");
+      Token (Name "expression");
+      Token (Literal ";");
+    ];
+  );
   "unannotated_type",
   Some (
     Alt [|
@@ -2265,18 +2278,6 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "method_declaration");
     |];
   );
-  "typed_metavariable_declaration",
-  Some (
-    Seq [
-      Token (Literal "(");
-      Token (Name "type");
-      Token (Name "identifier");
-      Token (Literal ")");
-      Token (Literal "=");
-      Token (Name "expression");
-      Token (Literal ";");
-    ];
-  );
   "partial_method",
   Some (
     Seq [
@@ -2317,11 +2318,6 @@ let trans_true_ ((kind, body) : mt) : CST.true_ =
   | Leaf v -> v
   | Children _ -> assert false
 
-let trans_underscore_pattern ((kind, body) : mt) : CST.underscore_pattern =
-  match body with
-  | Leaf v -> v
-  | Children _ -> assert false
-
 let trans_boolean_type ((kind, body) : mt) : CST.boolean_type =
   match body with
   | Leaf v -> v
@@ -2353,6 +2349,11 @@ let trans_floating_point_type ((kind, body) : mt) : CST.floating_point_type =
       )
   | Leaf _ -> assert false
 
+let trans_void_type ((kind, body) : mt) : CST.void_type =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
+
 let trans_asterisk ((kind, body) : mt) : CST.asterisk =
   match body with
   | Leaf v -> v
@@ -2379,6 +2380,11 @@ let trans_escape_sequence ((kind, body) : mt) : CST.escape_sequence =
   | Children _ -> assert false
 
 let trans_decimal_floating_point_literal ((kind, body) : mt) : CST.decimal_floating_point_literal =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
+
+let trans_underscore_pattern ((kind, body) : mt) : CST.underscore_pattern =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
@@ -2430,11 +2436,6 @@ let trans_reserved_identifier ((kind, body) : mt) : CST.reserved_identifier =
       | _ -> assert false
       )
   | Leaf _ -> assert false
-
-let trans_void_type ((kind, body) : mt) : CST.void_type =
-  match body with
-  | Leaf v -> v
-  | Children _ -> assert false
 
 let trans_character_literal ((kind, body) : mt) : CST.character_literal =
   match body with
@@ -2679,6 +2680,35 @@ let trans_multiline_string_fragment ((kind, body) : mt) : CST.multiline_string_f
       )
   | Leaf _ -> assert false
 
+let trans_uses_module_directive ((kind, body) : mt) : CST.uses_module_directive =
+  match body with
+  | Children v ->
+      (match v with
+      | Seq [v0; v1; v2] ->
+          (
+            Run.trans_token (Run.matcher_token v0),
+            (match v1 with
+            | Alt (0, v) ->
+                `Id (
+                  trans_identifier (Run.matcher_token v)
+                )
+            | Alt (1, v) ->
+                `Rese_id (
+                  trans_reserved_identifier (Run.matcher_token v)
+                )
+            | Alt (2, v) ->
+                `Scoped_id (
+                  trans_scoped_identifier (Run.matcher_token v)
+                )
+            | _ -> assert false
+            )
+            ,
+            Run.trans_token (Run.matcher_token v2)
+          )
+      | _ -> assert false
+      )
+  | Leaf _ -> assert false
+
 let trans_opens_module_directive ((kind, body) : mt) : CST.opens_module_directive =
   match body with
   | Children v ->
@@ -2872,35 +2902,6 @@ let trans_exports_module_directive ((kind, body) : mt) : CST.exports_module_dire
       )
   | Leaf _ -> assert false
 
-
-let trans_uses_module_directive ((kind, body) : mt) : CST.uses_module_directive =
-  match body with
-  | Children v ->
-      (match v with
-      | Seq [v0; v1; v2] ->
-          (
-            Run.trans_token (Run.matcher_token v0),
-            (match v1 with
-            | Alt (0, v) ->
-                `Id (
-                  trans_identifier (Run.matcher_token v)
-                )
-            | Alt (1, v) ->
-                `Rese_id (
-                  trans_reserved_identifier (Run.matcher_token v)
-                )
-            | Alt (2, v) ->
-                `Scoped_id (
-                  trans_scoped_identifier (Run.matcher_token v)
-                )
-            | _ -> assert false
-            )
-            ,
-            Run.trans_token (Run.matcher_token v2)
-          )
-      | _ -> assert false
-      )
-  | Leaf _ -> assert false
 
 let trans_provides_module_directive ((kind, body) : mt) : CST.provides_module_directive =
   match body with
@@ -6341,6 +6342,10 @@ and trans_statement ((kind, body) : mt) : CST.statement =
           `Semg_named_ellips (
             trans_semgrep_named_ellipsis (Run.matcher_token v)
           )
+      | Alt (3, v) ->
+          `Typed_meta_decl (
+            trans_typed_metavariable_declaration (Run.matcher_token v)
+          )
       | _ -> assert false
       )
   | Leaf _ -> assert false
@@ -6949,6 +6954,24 @@ and trans_typed_metavariable ((kind, body) : mt) : CST.typed_metavariable =
       )
   | Leaf _ -> assert false
 
+and trans_typed_metavariable_declaration ((kind, body) : mt) : CST.typed_metavariable_declaration =
+  match body with
+  | Children v ->
+      (match v with
+      | Seq [v0; v1; v2; v3; v4; v5; v6] ->
+          (
+            Run.trans_token (Run.matcher_token v0),
+            trans_type_ (Run.matcher_token v1),
+            trans_identifier (Run.matcher_token v2),
+            Run.trans_token (Run.matcher_token v3),
+            Run.trans_token (Run.matcher_token v4),
+            trans_expression (Run.matcher_token v5),
+            Run.trans_token (Run.matcher_token v6)
+          )
+      | _ -> assert false
+      )
+  | Leaf _ -> assert false
+
 and trans_unannotated_type ((kind, body) : mt) : CST.unannotated_type =
   match body with
   | Children v ->
@@ -7356,25 +7379,6 @@ let trans_toplevel_statement ((kind, body) : mt) : CST.toplevel_statement =
   | Leaf _ -> assert false
 
 
-
-let trans_typed_metavariable_declaration ((kind, body) : mt) : CST.typed_metavariable_declaration =
-  match body with
-  | Children v ->
-      (match v with
-      | Seq [v0; v1; v2; v3; v4; v5; v6] ->
-          (
-            Run.trans_token (Run.matcher_token v0),
-            trans_type_ (Run.matcher_token v1),
-            trans_identifier (Run.matcher_token v2),
-            Run.trans_token (Run.matcher_token v3),
-            Run.trans_token (Run.matcher_token v4),
-            trans_expression (Run.matcher_token v5),
-            Run.trans_token (Run.matcher_token v6)
-          )
-      | _ -> assert false
-      )
-  | Leaf _ -> assert false
-
 let trans_partial_method ((kind, body) : mt) : CST.partial_method =
   match body with
   | Children v ->
@@ -7390,6 +7394,7 @@ let trans_partial_method ((kind, body) : mt) : CST.partial_method =
       | _ -> assert false
       )
   | Leaf _ -> assert false
+
 
 
 let trans_partials ((kind, body) : mt) : CST.partials =

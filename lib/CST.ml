@@ -961,6 +961,7 @@ and statement = [
     ]
   | `Semg_ellips of Token.t (* "..." *)
   | `Semg_named_ellips of semgrep_named_ellipsis (*tok*)
+  | `Typed_meta_decl of typed_metavariable_declaration
 ]
 
 and static_initializer = (Token.t (* "static" *) * block)
@@ -1114,6 +1115,11 @@ and type_parameters = (
 
 and type_pattern = (unannotated_type * anon_choice_id_662bcdc)
 
+and typed_metavariable_declaration = (
+    Token.t (* "(" *) * type_ * identifier (*tok*) * Token.t (* ")" *)
+  * Token.t (* "=" *) * expression * Token.t (* ";" *)
+)
+
 and unannotated_type = [
     `Choice_void_type of simple_type
   | `Array_type of (unannotated_type * dimensions)
@@ -1200,13 +1206,14 @@ type program = [
   | `Cons_decl of constructor_declaration
   | `Exp of expression
   | `Partis of partials
-  | `Typed_meta_decl of (
-        Token.t (* "(" *) * type_ * identifier (*tok*) * Token.t (* ")" *)
-      * Token.t (* "=" *) * expression * Token.t (* ";" *)
-    )
+  | `Typed_meta_decl of typed_metavariable_declaration
 ]
 
+type underscore_pattern (* inlined *) = Token.t (* "_" *)
+
 type true_ (* inlined *) = Token.t (* "true" *)
+
+type void_type (* inlined *) = Token.t (* "void" *)
 
 type null_literal (* inlined *) = Token.t (* "null" *)
 
@@ -1216,11 +1223,7 @@ type asterisk (* inlined *) = Token.t (* "*" *)
 
 type line_comment (* inlined *) = Token.t
 
-type underscore_pattern (* inlined *) = Token.t (* "_" *)
-
 type boolean_type (* inlined *) = Token.t (* "boolean" *)
-
-type void_type (* inlined *) = Token.t (* "void" *)
 
 type this (* inlined *) = Token.t (* "this" *)
 
@@ -1238,16 +1241,16 @@ type scoped_identifier (* inlined *) = (
 
 type marker_annotation (* inlined *) = (Token.t (* "@" *) * name)
 
-type uses_module_directive (* inlined *) = (
-    Token.t (* "uses" *) * name * Token.t (* ";" *)
-)
-
 type import_declaration (* inlined *) = (
     Token.t (* "import" *)
   * Token.t (* "static" *) option
   * name
   * (Token.t (* "." *) * Token.t (* "*" *)) option
   * Token.t (* ";" *)
+)
+
+type uses_module_directive (* inlined *) = (
+    Token.t (* "uses" *) * name * Token.t (* ";" *)
 )
 
 type requires_module_directive (* inlined *) = (
@@ -1394,11 +1397,6 @@ type wildcard (* inlined *) = (
     annotation list (* zero or more *)
   * Token.t (* "?" *)
   * wildcard_bounds option
-)
-
-type typed_metavariable_declaration (* inlined *) = (
-    Token.t (* "(" *) * type_ * identifier (*tok*) * Token.t (* ")" *)
-  * Token.t (* "=" *) * expression * Token.t (* ";" *)
 )
 
 type partial_method (* inlined *) = (modifiers option * method_header)
