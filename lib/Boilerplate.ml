@@ -294,13 +294,16 @@ let rec map_annotation (env : env) (x : CST.annotation) =
       let v2 = map_name env v2 in
       R.Tuple [v1; v2]
     )
-  | `Anno_ (v1, v2, v3) -> R.Case ("Anno_",
-      let v1 = (* "@" *) token env v1 in
-      let v2 = map_name env v2 in
-      let v3 = map_annotation_argument_list env v3 in
-      R.Tuple [v1; v2; v3]
+  | `Anno_ x -> R.Case ("Anno_",
+      map_annotation_ env x
     )
   )
+
+and map_annotation_ (env : env) ((v1, v2, v3) : CST.annotation_) =
+  let v1 = (* "@" *) token env v1 in
+  let v2 = map_name env v2 in
+  let v3 = map_annotation_argument_list env v3 in
+  R.Tuple [v1; v2; v3]
 
 and map_annotation_argument_list (env : env) ((v1, v2, v3) : CST.annotation_argument_list) =
   let v1 = (* "(" *) token env v1 in
@@ -2733,6 +2736,9 @@ let map_partials (env : env) (x : CST.partials) =
       in
       let v2 = map_method_header env v2 in
       R.Tuple [v1; v2]
+    )
+  | `Anno_ x -> R.Case ("Anno_",
+      map_annotation_ env x
     )
   )
 

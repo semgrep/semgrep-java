@@ -20,11 +20,11 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: ede2cd8363d69a71cfedd9b4db59b0c2633f041e
+Latest commit in repo: ccaeafd4592392bc0f0f6a98370e0e488a96acb2
 Last change in file:
-  commit ede2cd8363d69a71cfedd9b4db59b0c2633f041e
+  commit ccaeafd4592392bc0f0f6a98370e0e488a96acb2
   Author: brandonspark <wu.brandonj@gmail.com>
-  Date:   Mon Jun 23 13:46:40 2025 -0700
+  Date:   Mon Jun 23 13:51:20 2025 -0700
   
-      allow ellipsis in decorator args
+      allow partial annotations
 ---

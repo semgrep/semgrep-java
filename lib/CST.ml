@@ -150,8 +150,10 @@ type module_body = (
 
 type annotation = [
     `Marker_anno of (Token.t (* "@" *) * name)
-  | `Anno_ of (Token.t (* "@" *) * name * annotation_argument_list)
+  | `Anno_ of annotation_
 ]
+
+and annotation_ = (Token.t (* "@" *) * name * annotation_argument_list)
 
 and annotation_argument_list = (
     Token.t (* "(" *)
@@ -1188,7 +1190,10 @@ type toplevel_statement = [
   | `Meth_decl of method_declaration
 ]
 
-type partials = [ `Part_meth of (modifiers option * method_header) ]
+type partials = [
+    `Part_meth of (modifiers option * method_header)
+  | `Anno_ of annotation_
+]
 
 type program = [
     `Rep_topl_stmt of toplevel_statement list (* zero or more *)
@@ -1274,10 +1279,6 @@ type opens_module_directive (* inlined *) = (
 type annotated_type (* inlined *) = (
     annotation list (* one or more *)
   * unannotated_type
-)
-
-type annotation_ (* inlined *) = (
-    Token.t (* "@" *) * name * annotation_argument_list
 )
 
 type array_type (* inlined *) = (unannotated_type * dimensions)

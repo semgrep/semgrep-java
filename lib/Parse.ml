@@ -2278,6 +2278,7 @@ let children_regexps : (string * Run.exp option) list = [
   Some (
     Alt [|
       Token (Name "partial_method");
+      Token (Name "annotation_");
     |];
   );
   "program",
@@ -7367,6 +7368,10 @@ let trans_partials ((kind, body) : mt) : CST.partials =
       | Alt (0, v) ->
           `Part_meth (
             trans_partial_method (Run.matcher_token v)
+          )
+      | Alt (1, v) ->
+          `Anno_ (
+            trans_annotation_ (Run.matcher_token v)
           )
       | _ -> assert false
       )
