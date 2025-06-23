@@ -943,14 +943,17 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "element_value_pair",
   Some (
-    Seq [
-      Alt [|
-        Token (Name "identifier");
-        Token (Name "reserved_identifier");
-      |];
-      Token (Literal "=");
-      Token (Name "element_value");
-    ];
+    Alt [|
+      Seq [
+        Alt [|
+          Token (Name "identifier");
+          Token (Name "reserved_identifier");
+        |];
+        Token (Literal "=");
+        Token (Name "element_value");
+      ];
+      Token (Name "semgrep_ellipsis");
+    |];
   );
   "enhanced_for_statement",
   Some (
@@ -4400,22 +4403,32 @@ and trans_element_value_pair ((kind, body) : mt) : CST.element_value_pair =
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2] ->
-          (
-            (match v0 with
-            | Alt (0, v) ->
-                `Id (
-                  trans_identifier (Run.matcher_token v)
-                )
-            | Alt (1, v) ->
-                `Rese_id (
-                  trans_reserved_identifier (Run.matcher_token v)
+      | Alt (0, v) ->
+          `Choice_id_EQ_elem_value (
+            (match v with
+            | Seq [v0; v1; v2] ->
+                (
+                  (match v0 with
+                  | Alt (0, v) ->
+                      `Id (
+                        trans_identifier (Run.matcher_token v)
+                      )
+                  | Alt (1, v) ->
+                      `Rese_id (
+                        trans_reserved_identifier (Run.matcher_token v)
+                      )
+                  | _ -> assert false
+                  )
+                  ,
+                  Run.trans_token (Run.matcher_token v1),
+                  trans_element_value (Run.matcher_token v2)
                 )
             | _ -> assert false
             )
-            ,
-            Run.trans_token (Run.matcher_token v1),
-            trans_element_value (Run.matcher_token v2)
+          )
+      | Alt (1, v) ->
+          `Semg_ellips (
+            trans_semgrep_ellipsis (Run.matcher_token v)
           )
       | _ -> assert false
       )

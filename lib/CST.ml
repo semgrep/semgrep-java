@@ -478,9 +478,12 @@ and element_value = [
   | `Anno of annotation
 ]
 
-and element_value_pair = (
-    anon_choice_id_662bcdc * Token.t (* "=" *) * element_value
-)
+and element_value_pair = [
+    `Choice_id_EQ_elem_value of (
+        anon_choice_id_662bcdc * Token.t (* "=" *) * element_value
+    )
+  | `Semg_ellips of Token.t (* "..." *)
+]
 
 and enhanced_for_statement = (
     Token.t (* "for" *)

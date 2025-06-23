@@ -1062,11 +1062,18 @@ and map_element_value (env : env) (x : CST.element_value) =
     )
   )
 
-and map_element_value_pair (env : env) ((v1, v2, v3) : CST.element_value_pair) =
-  let v1 = map_anon_choice_id_662bcdc env v1 in
-  let v2 = (* "=" *) token env v2 in
-  let v3 = map_element_value env v3 in
-  R.Tuple [v1; v2; v3]
+and map_element_value_pair (env : env) (x : CST.element_value_pair) =
+  (match x with
+  | `Choice_id_EQ_elem_value (v1, v2, v3) -> R.Case ("Choice_id_EQ_elem_value",
+      let v1 = map_anon_choice_id_662bcdc env v1 in
+      let v2 = (* "=" *) token env v2 in
+      let v3 = map_element_value env v3 in
+      R.Tuple [v1; v2; v3]
+    )
+  | `Semg_ellips tok -> R.Case ("Semg_ellips",
+      (* "..." *) token env tok
+    )
+  )
 
 and map_enhanced_for_statement (env : env) ((v1, v2, v3, v4, v5, v6, v7, v8, v9) : CST.enhanced_for_statement) =
   let v1 = (* "for" *) token env v1 in
