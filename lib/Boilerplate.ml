@@ -2756,6 +2756,18 @@ let map_program (env : env) (x : CST.program) =
   | `Partis x -> R.Case ("Partis",
       map_partials env x
     )
+  | `Typed_meta_decl (v1, v2, v3, v4, v5, v6, v7) -> R.Case ("Typed_meta_decl",
+      let v1 = (* "(" *) token env v1 in
+      let v2 = map_type_ env v2 in
+      let v3 =
+        (* pattern [\p{XID_Start}_$][\p{XID_Continue}\u00A2_$]* *) token env v3
+      in
+      let v4 = (* ")" *) token env v4 in
+      let v5 = (* "=" *) token env v5 in
+      let v6 = map_expression env v6 in
+      let v7 = (* ";" *) token env v7 in
+      R.Tuple [v1; v2; v3; v4; v5; v6; v7]
+    )
   )
 
 let map_line_comment (env : env) (tok : CST.line_comment) =
