@@ -1153,8 +1153,28 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal "for");
       Token (Literal "(");
       Alt [|
-        Token (Name "local_variable_declaration");
         Seq [
+          Alt [|
+            Token (Name "local_variable_declaration");
+            Seq [
+              Opt (
+                Seq [
+                  Token (Name "expression");
+                  Repeat (
+                    Seq [
+                      Token (Literal ",");
+                      Token (Name "expression");
+                    ];
+                  );
+                ];
+              );
+              Token (Literal ";");
+            ];
+          |];
+          Opt (
+            Token (Name "expression");
+          );
+          Token (Literal ";");
           Opt (
             Seq [
               Token (Name "expression");
@@ -1166,24 +1186,9 @@ let children_regexps : (string * Run.exp option) list = [
               );
             ];
           );
-          Token (Literal ";");
         ];
+        Token (Name "semgrep_ellipsis");
       |];
-      Opt (
-        Token (Name "expression");
-      );
-      Token (Literal ";");
-      Opt (
-        Seq [
-          Token (Name "expression");
-          Repeat (
-            Seq [
-              Token (Literal ",");
-              Token (Name "expression");
-            ];
-          );
-        ];
-      );
       Token (Literal ")");
       Token (Name "statement");
     ];
@@ -2045,15 +2050,19 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "type_parameter",
   Some (
-    Seq [
-      Repeat (
-        Token (Name "annotation");
-      );
-      Token (Name "identifier");
-      Opt (
-        Token (Name "type_bound");
-      );
-    ];
+    Alt [|
+      Seq [
+        Repeat (
+          Token (Name "annotation");
+        );
+        Token (Name "identifier");
+        Opt (
+          Token (Name "type_bound");
+        );
+      ];
+      Token (Name "semgrep_ellipsis");
+      Token (Name "semgrep_named_ellipsis");
+    |];
   );
   "type_parameters",
   Some (
@@ -4874,20 +4883,63 @@ and trans_for_statement ((kind, body) : mt) : CST.for_statement =
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2; v3; v4; v5; v6; v7] ->
+      | Seq [v0; v1; v2; v3; v4] ->
           (
             Run.trans_token (Run.matcher_token v0),
             Run.trans_token (Run.matcher_token v1),
             (match v2 with
             | Alt (0, v) ->
-                `Local_var_decl (
-                  trans_local_variable_declaration (Run.matcher_token v)
-                )
-            | Alt (1, v) ->
-                `Opt_exp_rep_COMMA_exp_SEMI (
+                `Choice_local_var_decl_opt_exp_SEMI_opt_exp_rep_COMMA_exp (
                   (match v with
-                  | Seq [v0; v1] ->
+                  | Seq [v0; v1; v2; v3] ->
                       (
+                        (match v0 with
+                        | Alt (0, v) ->
+                            `Local_var_decl (
+                              trans_local_variable_declaration (Run.matcher_token v)
+                            )
+                        | Alt (1, v) ->
+                            `Opt_exp_rep_COMMA_exp_SEMI (
+                              (match v with
+                              | Seq [v0; v1] ->
+                                  (
+                                    Run.opt
+                                      (fun v ->
+                                        (match v with
+                                        | Seq [v0; v1] ->
+                                            (
+                                              trans_expression (Run.matcher_token v0),
+                                              Run.repeat
+                                                (fun v ->
+                                                  (match v with
+                                                  | Seq [v0; v1] ->
+                                                      (
+                                                        Run.trans_token (Run.matcher_token v0),
+                                                        trans_expression (Run.matcher_token v1)
+                                                      )
+                                                  | _ -> assert false
+                                                  )
+                                                )
+                                                v1
+                                            )
+                                        | _ -> assert false
+                                        )
+                                      )
+                                      v0
+                                    ,
+                                    Run.trans_token (Run.matcher_token v1)
+                                  )
+                              | _ -> assert false
+                              )
+                            )
+                        | _ -> assert false
+                        )
+                        ,
+                        Run.opt
+                          (fun v -> trans_expression (Run.matcher_token v))
+                          v1
+                        ,
+                        Run.trans_token (Run.matcher_token v2),
                         Run.opt
                           (fun v ->
                             (match v with
@@ -4910,47 +4962,20 @@ and trans_for_statement ((kind, body) : mt) : CST.for_statement =
                             | _ -> assert false
                             )
                           )
-                          v0
-                        ,
-                        Run.trans_token (Run.matcher_token v1)
+                          v3
                       )
                   | _ -> assert false
                   )
                 )
+            | Alt (1, v) ->
+                `Semg_ellips (
+                  trans_semgrep_ellipsis (Run.matcher_token v)
+                )
             | _ -> assert false
             )
             ,
-            Run.opt
-              (fun v -> trans_expression (Run.matcher_token v))
-              v3
-            ,
-            Run.trans_token (Run.matcher_token v4),
-            Run.opt
-              (fun v ->
-                (match v with
-                | Seq [v0; v1] ->
-                    (
-                      trans_expression (Run.matcher_token v0),
-                      Run.repeat
-                        (fun v ->
-                          (match v with
-                          | Seq [v0; v1] ->
-                              (
-                                Run.trans_token (Run.matcher_token v0),
-                                trans_expression (Run.matcher_token v1)
-                              )
-                          | _ -> assert false
-                          )
-                        )
-                        v1
-                    )
-                | _ -> assert false
-                )
-              )
-              v5
-            ,
-            Run.trans_token (Run.matcher_token v6),
-            trans_statement (Run.matcher_token v7)
+            Run.trans_token (Run.matcher_token v3),
+            trans_statement (Run.matcher_token v4)
           )
       | _ -> assert false
       )
@@ -6874,16 +6899,30 @@ and trans_type_parameter ((kind, body) : mt) : CST.type_parameter =
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2] ->
-          (
-            Run.repeat
-              (fun v -> trans_annotation (Run.matcher_token v))
-              v0
-            ,
-            trans_identifier (Run.matcher_token v1),
-            Run.opt
-              (fun v -> trans_type_bound (Run.matcher_token v))
-              v2
+      | Alt (0, v) ->
+          `Rep_anno_id_opt_type_bound (
+            (match v with
+            | Seq [v0; v1; v2] ->
+                (
+                  Run.repeat
+                    (fun v -> trans_annotation (Run.matcher_token v))
+                    v0
+                  ,
+                  trans_identifier (Run.matcher_token v1),
+                  Run.opt
+                    (fun v -> trans_type_bound (Run.matcher_token v))
+                    v2
+                )
+            | _ -> assert false
+            )
+          )
+      | Alt (1, v) ->
+          `Semg_ellips (
+            trans_semgrep_ellipsis (Run.matcher_token v)
+          )
+      | Alt (2, v) ->
+          `Semg_named_ellips (
+            trans_semgrep_named_ellipsis (Run.matcher_token v)
           )
       | _ -> assert false
       )

@@ -626,15 +626,20 @@ and for_statement = (
     Token.t (* "for" *)
   * Token.t (* "(" *)
   * [
-        `Local_var_decl of local_variable_declaration
-      | `Opt_exp_rep_COMMA_exp_SEMI of (
-            anon_exp_rep_COMMA_exp_0bb260c option
+        `Choice_local_var_decl_opt_exp_SEMI_opt_exp_rep_COMMA_exp of (
+            [
+                `Local_var_decl of local_variable_declaration
+              | `Opt_exp_rep_COMMA_exp_SEMI of (
+                    anon_exp_rep_COMMA_exp_0bb260c option
+                  * Token.t (* ";" *)
+                )
+            ]
+          * expression option
           * Token.t (* ";" *)
+          * anon_exp_rep_COMMA_exp_0bb260c option
         )
+      | `Semg_ellips of Token.t (* "..." *)
     ]
-  * expression option
-  * Token.t (* ";" *)
-  * anon_exp_rep_COMMA_exp_0bb260c option
   * Token.t (* ")" *)
   * statement
 )
@@ -1100,11 +1105,15 @@ and type_bound = (
 
 and type_list = (type_ * (Token.t (* "," *) * type_) list (* zero or more *))
 
-and type_parameter = (
-    annotation list (* zero or more *)
-  * identifier (*tok*)
-  * type_bound option
-)
+and type_parameter = [
+    `Rep_anno_id_opt_type_bound of (
+        annotation list (* zero or more *)
+      * identifier (*tok*)
+      * type_bound option
+    )
+  | `Semg_ellips of Token.t (* "..." *)
+  | `Semg_named_ellips of semgrep_named_ellipsis (*tok*)
+]
 
 and type_parameters = (
     Token.t (* "<" *)
