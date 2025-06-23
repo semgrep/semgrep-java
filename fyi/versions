@@ -20,11 +20,11 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 083a27c2505b4ee8377b51886a38177657ac7726
+Latest commit in repo: 94598a3c914490a252242f665540a0adbda32fb3
 Last change in file:
-  commit 083a27c2505b4ee8377b51886a38177657ac7726
+  commit 94598a3c914490a252242f665540a0adbda32fb3
   Author: brandonspark <wu.brandonj@gmail.com>
-  Date:   Mon Jun 23 13:12:08 2025 -0700
+  Date:   Mon Jun 23 13:23:04 2025 -0700
   
-      add semgrep expression entry point
+      remove SEMGREP_EXPRESSION
 ---
