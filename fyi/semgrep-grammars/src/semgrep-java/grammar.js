@@ -32,6 +32,9 @@ module.exports = grammar(base_grammar, {
     // explore both options with GLR. It's probably not a true ambiguity, just
     // an LR(1) conflict. However, even if it is, it should be an innocuous one.
     [$.primary_expression, $.statement],
+
+    [$._type, $.formal_parameter, $.receiver_parameter],
+    [$.annotated_type, $.receiver_parameter],
   ]),
 
   rules: {
@@ -41,17 +44,22 @@ module.exports = grammar(base_grammar, {
       previous,
       $.constructor_declaration,
       $.expression,
-      $.partials
+      $.partials,
+      $.semgrep_expression
     ),
 
     semgrep_ellipsis: $ => '...',
     semgrep_named_ellipsis: $ => /\$\.\.\.[A-Z_][A-Z_0-9]*/,
 
+    // Alternate "entry point". Allows parsing a standalone expression.
+    semgrep_expression: $ => seq('__SEMGREP_EXPRESSION', $.expression),
 
     primary_expression: ($, previous) => choice(
       previous,
       $.semgrep_ellipsis,
-      $.semgrep_named_ellipsis
+      $.semgrep_named_ellipsis,
+      $.typed_metavariable,
+      $.deep_ellipsis,
     ),
 
     statement: ($, previous) => choice(
@@ -75,6 +83,16 @@ module.exports = grammar(base_grammar, {
     partials: $ => choice(
        $.partial_method,
     ),
+
+    semgrep_metavariable: $ => token(/\$[A-Z_][A-Z_0-9]*/),
+    deep_ellipsis: $ => seq('<...', $.expression, '...>'),
+
+    typed_metavariable: $ => prec(1000, seq(
+      '(',
+       $._type,
+       $.identifier,
+       ')'
+    )),
 
     // partial of method_declaration
     partial_method: $ => seq(

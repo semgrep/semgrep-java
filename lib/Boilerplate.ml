@@ -34,6 +34,9 @@ let map_escape_sequence (env : env) (tok : CST.escape_sequence) =
 let map_character_literal (env : env) (tok : CST.character_literal) =
   (* character_literal *) token env tok
 
+let map_semgrep_named_ellipsis (env : env) (tok : CST.semgrep_named_ellipsis) =
+  (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
+
 let map_integral_type (env : env) (x : CST.integral_type) =
   (match x with
   | `Byte tok -> R.Case ("Byte",
@@ -75,9 +78,6 @@ let map_identifier (env : env) (tok : CST.identifier) =
 let map_hex_floating_point_literal (env : env) (tok : CST.hex_floating_point_literal) =
   (* hex_floating_point_literal *) token env tok
 
-let map_string_fragment (env : env) (tok : CST.string_fragment) =
-  (* pattern "[^\"\\\\]+" *) token env tok
-
 let map_reserved_identifier (env : env) (x : CST.reserved_identifier) =
   (match x with
   | `Choice_open x -> R.Case ("Choice_open",
@@ -107,6 +107,9 @@ let map_reserved_identifier (env : env) (x : CST.reserved_identifier) =
 let map_decimal_floating_point_literal (env : env) (tok : CST.decimal_floating_point_literal) =
   (* decimal_floating_point_literal *) token env tok
 
+let map_string_fragment (env : env) (tok : CST.string_fragment) =
+  (* pattern "[^\"\\\\]+" *) token env tok
+
 let map_requires_modifier (env : env) (x : CST.requires_modifier) =
   (match x with
   | `Tran tok -> R.Case ("Tran",
@@ -119,9 +122,6 @@ let map_requires_modifier (env : env) (x : CST.requires_modifier) =
 
 let map_pat_22cdef7 (env : env) (tok : CST.pat_22cdef7) =
   (* pattern "\"([^\"\\\\]|\\\\\")*" *) token env tok
-
-let map_semgrep_named_ellipsis (env : env) (tok : CST.semgrep_named_ellipsis) =
-  (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
 
 let map_imm_tok_bslash_pat_60d9bc8 (env : env) (tok : CST.imm_tok_bslash_pat_60d9bc8) =
   (* imm_tok_bslash_pat_60d9bc8 *) token env tok
@@ -1955,6 +1955,21 @@ and map_primary_expression (env : env) (x : CST.primary_expression) =
   | `Semg_named_ellips tok -> R.Case ("Semg_named_ellips",
       (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
     )
+  | `Typed_meta (v1, v2, v3, v4) -> R.Case ("Typed_meta",
+      let v1 = (* "(" *) token env v1 in
+      let v2 = map_type_ env v2 in
+      let v3 =
+        (* pattern [\p{XID_Start}_$][\p{XID_Continue}\u00A2_$]* *) token env v3
+      in
+      let v4 = (* ")" *) token env v4 in
+      R.Tuple [v1; v2; v3; v4]
+    )
+  | `Deep_ellips (v1, v2, v3) -> R.Case ("Deep_ellips",
+      let v1 = (* "<..." *) token env v1 in
+      let v2 = map_expression env v2 in
+      let v3 = (* "...>" *) token env v3 in
+      R.Tuple [v1; v2; v3]
+    )
   )
 
 and map_receiver_parameter (env : env) ((v1, v2, v3, v4) : CST.receiver_parameter) =
@@ -2724,6 +2739,11 @@ let map_program (env : env) (x : CST.program) =
     )
   | `Partis x -> R.Case ("Partis",
       map_partials env x
+    )
+  | `Semg_exp (v1, v2) -> R.Case ("Semg_exp",
+      let v1 = (* "__SEMGREP_EXPRESSION" *) token env v1 in
+      let v2 = map_expression env v2 in
+      R.Tuple [v1; v2]
     )
   )
 

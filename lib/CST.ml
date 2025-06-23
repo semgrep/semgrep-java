@@ -18,6 +18,8 @@ type escape_sequence = Token.t
 
 type character_literal = Token.t
 
+type semgrep_named_ellipsis = Token.t (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *)
+
 type integral_type = [
     `Byte of Token.t (* "byte" *)
   | `Short of Token.t (* "short" *)
@@ -40,8 +42,6 @@ type identifier =
 
 type hex_floating_point_literal = Token.t
 
-type string_fragment = Token.t (* pattern "[^\"\\\\]+" *)
-
 type reserved_identifier = [
     `Choice_open of [
         `Open of Token.t (* "open" *)
@@ -55,14 +55,14 @@ type reserved_identifier = [
 
 type decimal_floating_point_literal = Token.t
 
+type string_fragment = Token.t (* pattern "[^\"\\\\]+" *)
+
 type requires_modifier = [
     `Tran of Token.t (* "transitive" *)
   | `Static of Token.t (* "static" *)
 ]
 
 type pat_22cdef7 = Token.t (* pattern "\"([^\"\\\\]|\\\\\")*" *)
-
-type semgrep_named_ellipsis = Token.t (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *)
 
 type imm_tok_bslash_pat_60d9bc8 = Token.t
 
@@ -832,6 +832,12 @@ and primary_expression = [
     ]
   | `Semg_ellips of Token.t (* "..." *)
   | `Semg_named_ellips of semgrep_named_ellipsis (*tok*)
+  | `Typed_meta of (
+        Token.t (* "(" *) * type_ * identifier (*tok*) * Token.t (* ")" *)
+    )
+  | `Deep_ellips of (
+        Token.t (* "<..." *) * expression * Token.t (* "...>" *)
+    )
 ]
 
 and receiver_parameter = (
@@ -1185,41 +1191,44 @@ type program = [
   | `Cons_decl of constructor_declaration
   | `Exp of expression
   | `Partis of partials
+  | `Semg_exp of (Token.t (* "__SEMGREP_EXPRESSION" *) * expression)
 ]
 
-type underscore_pattern (* inlined *) = Token.t (* "_" *)
+type true_ (* inlined *) = Token.t (* "true" *)
 
 type null_literal (* inlined *) = Token.t (* "null" *)
 
 type false_ (* inlined *) = Token.t (* "false" *)
 
-type super (* inlined *) = Token.t (* "super" *)
-
 type asterisk (* inlined *) = Token.t (* "*" *)
 
 type line_comment (* inlined *) = Token.t
 
-type void_type (* inlined *) = Token.t (* "void" *)
+type underscore_pattern (* inlined *) = Token.t (* "_" *)
 
 type boolean_type (* inlined *) = Token.t (* "boolean" *)
 
-type true_ (* inlined *) = Token.t (* "true" *)
+type this (* inlined *) = Token.t (* "this" *)
+
+type void_type (* inlined *) = Token.t (* "void" *)
+
+type super (* inlined *) = Token.t (* "super" *)
+
+type semgrep_metavariable (* inlined *) = Token.t
 
 type block_comment (* inlined *) = Token.t
 
 type semgrep_ellipsis (* inlined *) = Token.t (* "..." *)
 
-type this (* inlined *) = Token.t (* "this" *)
-
 type scoped_identifier (* inlined *) = (
     name * Token.t (* "." *) * identifier (*tok*)
 )
 
+type marker_annotation (* inlined *) = (Token.t (* "@" *) * name)
+
 type uses_module_directive (* inlined *) = (
     Token.t (* "uses" *) * name * Token.t (* ";" *)
 )
-
-type marker_annotation (* inlined *) = (Token.t (* "@" *) * name)
 
 type import_declaration (* inlined *) = (
     Token.t (* "import" *)
@@ -1294,6 +1303,10 @@ type assignment_expression (* inlined *) = (
   * expression
 )
 
+type deep_ellipsis (* inlined *) = (
+    Token.t (* "<..." *) * expression * Token.t (* "...>" *)
+)
+
 type element_value_array_initializer (* inlined *) = (
     Token.t (* "{" *)
   * (
@@ -1365,6 +1378,10 @@ type ternary_expression (* inlined *) = (
   * expression
 )
 
+type typed_metavariable (* inlined *) = (
+    Token.t (* "(" *) * type_ * identifier (*tok*) * Token.t (* ")" *)
+)
+
 type wildcard (* inlined *) = (
     annotation list (* zero or more *)
   * Token.t (* "?" *)
@@ -1372,6 +1389,10 @@ type wildcard (* inlined *) = (
 )
 
 type partial_method (* inlined *) = (modifiers option * method_header)
+
+type semgrep_expression (* inlined *) = (
+    Token.t (* "__SEMGREP_EXPRESSION" *) * expression
+)
 
 type extra = [
     `Line_comment of Loc.t * line_comment

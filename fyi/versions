@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-java/LICENSE
 Git repo name: tree-sitter-java
-Latest commit in repo: 3c24aa9365985830421a3a7b6791b415961ea770
+Latest commit in repo: a7db5227ec40fcfe94489559d8c9bc7c8181e25a
 Last change in file:
   commit 594f37a72daf46820a8d5b1b939f39e8aa3c6ce1
   Author: Ayman Nadeem <aymannadeem@github.com>
@@ -10,26 +10,21 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-java/grammar.js
 Git repo name: tree-sitter-java
-Latest commit in repo: 3c24aa9365985830421a3a7b6791b415961ea770
+Latest commit in repo: a7db5227ec40fcfe94489559d8c9bc7c8181e25a
 Last change in file:
-  commit e23cdc72ad33ed08ca47a65a24bff31405455948
-  Author: Andreas Humenberger <andreas.humenberger@symflower.com>
-  Date:   Wed Feb 22 05:22:04 2023 +0100
+  commit 488557612b44bde9c5e8c3011138992a8e500c90
+  Author: Amaan Qureshi <amaanq12@gmail.com>
+  Date:   Sat Dec 21 13:08:03 2024 -0500
   
-      fix, Local variable declaration with generic types and scoped type identifier
-      
-      This change partially reverts a change from #125 which caused the regression.
-      The test case introduced by #125 still exists and works.
-      
-      Fixes #138
+      feat: allow reserved identifiers in `element_value_pair`
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: dcba33daef997145c6f5ea4fc9b744c9516a7f16
+Latest commit in repo: 083a27c2505b4ee8377b51886a38177657ac7726
 Last change in file:
-  commit b43d5527a5dc9e89553798c14e958e3d5e4c8397
+  commit 083a27c2505b4ee8377b51886a38177657ac7726
   Author: brandonspark <wu.brandonj@gmail.com>
-  Date:   Tue Dec 19 15:38:49 2023 -0800
+  Date:   Mon Jun 23 13:12:08 2025 -0700
   
-      chore: allow named ellipsis for stmts and exp, add tests
+      add semgrep expression entry point
 ---
