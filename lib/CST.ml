@@ -535,20 +535,20 @@ and enum_body = (
   * Token.t (* "}" *)
 )
 
-and enum_body_declarations = (
-    Token.t (* ";" *)
-  * class_body_declaration list (* zero or more *)
-)
-
-and enum_constant = [
-    `Opt_modifs_id_opt_arg_list_opt_class_body of (
-        modifiers option
-      * identifier (*tok*)
-      * argument_list option
-      * class_body option
+and enum_body_declarations = [
+    `SEMI_rep_choice_choice_field_decl of (
+        Token.t (* ";" *)
+      * class_body_declaration list (* zero or more *)
     )
   | `Semg_ellips of Token.t (* "..." *)
 ]
+
+and enum_constant = (
+    modifiers option
+  * identifier (*tok*)
+  * argument_list option
+  * class_body option
+)
 
 and enum_declaration = (
     modifiers option

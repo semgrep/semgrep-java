@@ -1003,47 +1003,47 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "enum_body_declarations",
   Some (
-    Seq [
-      Token (Literal ";");
-      Repeat (
-        Alt [|
-          Alt [|
-            Token (Name "field_declaration");
-            Token (Name "record_declaration");
-            Token (Name "method_declaration");
-            Token (Name "compact_constructor_declaration");
-            Token (Name "class_declaration");
-            Token (Name "interface_declaration");
-            Token (Name "annotation_type_declaration");
-            Token (Name "enum_declaration");
-            Token (Name "block");
-            Token (Name "static_initializer");
-            Token (Name "constructor_declaration");
-            Token (Literal ";");
-          |];
-          Token (Name "semgrep_ellipsis");
-          Token (Name "semgrep_named_ellipsis");
-        |];
-      );
-    ];
-  );
-  "enum_constant",
-  Some (
     Alt [|
       Seq [
-        Opt (
-          Token (Name "modifiers");
-        );
-        Token (Name "identifier");
-        Opt (
-          Token (Name "argument_list");
-        );
-        Opt (
-          Token (Name "class_body");
+        Token (Literal ";");
+        Repeat (
+          Alt [|
+            Alt [|
+              Token (Name "field_declaration");
+              Token (Name "record_declaration");
+              Token (Name "method_declaration");
+              Token (Name "compact_constructor_declaration");
+              Token (Name "class_declaration");
+              Token (Name "interface_declaration");
+              Token (Name "annotation_type_declaration");
+              Token (Name "enum_declaration");
+              Token (Name "block");
+              Token (Name "static_initializer");
+              Token (Name "constructor_declaration");
+              Token (Literal ";");
+            |];
+            Token (Name "semgrep_ellipsis");
+            Token (Name "semgrep_named_ellipsis");
+          |];
         );
       ];
       Token (Name "semgrep_ellipsis");
     |];
+  );
+  "enum_constant",
+  Some (
+    Seq [
+      Opt (
+        Token (Name "modifiers");
+      );
+      Token (Name "identifier");
+      Opt (
+        Token (Name "argument_list");
+      );
+      Opt (
+        Token (Name "class_body");
+      );
+    ];
   );
   "enum_declaration",
   Some (
@@ -4597,78 +4597,88 @@ and trans_enum_body_declarations ((kind, body) : mt) : CST.enum_body_declaration
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1] ->
-          (
-            Run.trans_token (Run.matcher_token v0),
-            Run.repeat
-              (fun v ->
-                (match v with
-                | Alt (0, v) ->
-                    `Choice_field_decl (
+      | Alt (0, v) ->
+          `SEMI_rep_choice_choice_field_decl (
+            (match v with
+            | Seq [v0; v1] ->
+                (
+                  Run.trans_token (Run.matcher_token v0),
+                  Run.repeat
+                    (fun v ->
                       (match v with
                       | Alt (0, v) ->
-                          `Field_decl (
-                            trans_field_declaration (Run.matcher_token v)
+                          `Choice_field_decl (
+                            (match v with
+                            | Alt (0, v) ->
+                                `Field_decl (
+                                  trans_field_declaration (Run.matcher_token v)
+                                )
+                            | Alt (1, v) ->
+                                `Record_decl (
+                                  trans_record_declaration (Run.matcher_token v)
+                                )
+                            | Alt (2, v) ->
+                                `Meth_decl (
+                                  trans_method_declaration (Run.matcher_token v)
+                                )
+                            | Alt (3, v) ->
+                                `Comp_cons_decl (
+                                  trans_compact_constructor_declaration (Run.matcher_token v)
+                                )
+                            | Alt (4, v) ->
+                                `Class_decl (
+                                  trans_class_declaration (Run.matcher_token v)
+                                )
+                            | Alt (5, v) ->
+                                `Inte_decl (
+                                  trans_interface_declaration (Run.matcher_token v)
+                                )
+                            | Alt (6, v) ->
+                                `Anno_type_decl (
+                                  trans_annotation_type_declaration (Run.matcher_token v)
+                                )
+                            | Alt (7, v) ->
+                                `Enum_decl (
+                                  trans_enum_declaration (Run.matcher_token v)
+                                )
+                            | Alt (8, v) ->
+                                `Blk (
+                                  trans_block (Run.matcher_token v)
+                                )
+                            | Alt (9, v) ->
+                                `Static_init (
+                                  trans_static_initializer (Run.matcher_token v)
+                                )
+                            | Alt (10, v) ->
+                                `Cons_decl (
+                                  trans_constructor_declaration (Run.matcher_token v)
+                                )
+                            | Alt (11, v) ->
+                                `SEMI (
+                                  Run.trans_token (Run.matcher_token v)
+                                )
+                            | _ -> assert false
+                            )
                           )
                       | Alt (1, v) ->
-                          `Record_decl (
-                            trans_record_declaration (Run.matcher_token v)
+                          `Semg_ellips (
+                            trans_semgrep_ellipsis (Run.matcher_token v)
                           )
                       | Alt (2, v) ->
-                          `Meth_decl (
-                            trans_method_declaration (Run.matcher_token v)
-                          )
-                      | Alt (3, v) ->
-                          `Comp_cons_decl (
-                            trans_compact_constructor_declaration (Run.matcher_token v)
-                          )
-                      | Alt (4, v) ->
-                          `Class_decl (
-                            trans_class_declaration (Run.matcher_token v)
-                          )
-                      | Alt (5, v) ->
-                          `Inte_decl (
-                            trans_interface_declaration (Run.matcher_token v)
-                          )
-                      | Alt (6, v) ->
-                          `Anno_type_decl (
-                            trans_annotation_type_declaration (Run.matcher_token v)
-                          )
-                      | Alt (7, v) ->
-                          `Enum_decl (
-                            trans_enum_declaration (Run.matcher_token v)
-                          )
-                      | Alt (8, v) ->
-                          `Blk (
-                            trans_block (Run.matcher_token v)
-                          )
-                      | Alt (9, v) ->
-                          `Static_init (
-                            trans_static_initializer (Run.matcher_token v)
-                          )
-                      | Alt (10, v) ->
-                          `Cons_decl (
-                            trans_constructor_declaration (Run.matcher_token v)
-                          )
-                      | Alt (11, v) ->
-                          `SEMI (
-                            Run.trans_token (Run.matcher_token v)
+                          `Semg_named_ellips (
+                            trans_semgrep_named_ellipsis (Run.matcher_token v)
                           )
                       | _ -> assert false
                       )
                     )
-                | Alt (1, v) ->
-                    `Semg_ellips (
-                      trans_semgrep_ellipsis (Run.matcher_token v)
-                    )
-                | Alt (2, v) ->
-                    `Semg_named_ellips (
-                      trans_semgrep_named_ellipsis (Run.matcher_token v)
-                    )
-                | _ -> assert false
+                    v1
                 )
-              )
-              v1
+            | _ -> assert false
+            )
+          )
+      | Alt (1, v) ->
+          `Semg_ellips (
+            trans_semgrep_ellipsis (Run.matcher_token v)
           )
       | _ -> assert false
       )
@@ -4678,30 +4688,20 @@ and trans_enum_constant ((kind, body) : mt) : CST.enum_constant =
   match body with
   | Children v ->
       (match v with
-      | Alt (0, v) ->
-          `Opt_modifs_id_opt_arg_list_opt_class_body (
-            (match v with
-            | Seq [v0; v1; v2; v3] ->
-                (
-                  Run.opt
-                    (fun v -> trans_modifiers (Run.matcher_token v))
-                    v0
-                  ,
-                  trans_identifier (Run.matcher_token v1),
-                  Run.opt
-                    (fun v -> trans_argument_list (Run.matcher_token v))
-                    v2
-                  ,
-                  Run.opt
-                    (fun v -> trans_class_body (Run.matcher_token v))
-                    v3
-                )
-            | _ -> assert false
-            )
-          )
-      | Alt (1, v) ->
-          `Semg_ellips (
-            trans_semgrep_ellipsis (Run.matcher_token v)
+      | Seq [v0; v1; v2; v3] ->
+          (
+            Run.opt
+              (fun v -> trans_modifiers (Run.matcher_token v))
+              v0
+            ,
+            trans_identifier (Run.matcher_token v1),
+            Run.opt
+              (fun v -> trans_argument_list (Run.matcher_token v))
+              v2
+            ,
+            Run.opt
+              (fun v -> trans_class_body (Run.matcher_token v))
+              v3
           )
       | _ -> assert false
       )

@@ -20,11 +20,11 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: b49ae7410c7749ee39bda8a87212e8c53b60c510
+Latest commit in repo: 50a4a58fc3f8ba96e6f4ae62ea58a9feaed98258
 Last change in file:
-  commit b49ae7410c7749ee39bda8a87212e8c53b60c510
+  commit 50a4a58fc3f8ba96e6f4ae62ea58a9feaed98258
   Author: brandonspark <wu.brandonj@gmail.com>
-  Date:   Mon Jun 23 16:50:19 2025 -0700
+  Date:   Mon Jun 23 16:55:49 2025 -0700
   
-      bunch of stuff to allow last parsing tests to pass
+      enum constant ellipsis -> enum body declarations ellipsis
 ---

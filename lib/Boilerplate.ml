@@ -1188,46 +1188,46 @@ and map_enum_body (env : env) ((v1, v2, v3, v4, v5) : CST.enum_body) =
   let v5 = (* "}" *) token env v5 in
   R.Tuple [v1; v2; v3; v4; v5]
 
-and map_enum_body_declarations (env : env) ((v1, v2) : CST.enum_body_declarations) =
-  let v1 = (* ";" *) token env v1 in
-  let v2 =
-    R.List (List.map (map_class_body_declaration env) v2)
-  in
-  R.Tuple [v1; v2]
-
-and map_enum_constant (env : env) (x : CST.enum_constant) =
+and map_enum_body_declarations (env : env) (x : CST.enum_body_declarations) =
   (match x with
-  | `Opt_modifs_id_opt_arg_list_opt_class_body (v1, v2, v3, v4) -> R.Case ("Opt_modifs_id_opt_arg_list_opt_class_body",
-      let v1 =
-        (match v1 with
-        | Some x -> R.Option (Some (
-            map_modifiers env x
-          ))
-        | None -> R.Option None)
-      in
+  | `SEMI_rep_choice_choice_field_decl (v1, v2) -> R.Case ("SEMI_rep_choice_choice_field_decl",
+      let v1 = (* ";" *) token env v1 in
       let v2 =
-        (* pattern [\p{XID_Start}_$][\p{XID_Continue}\u00A2_$]* *) token env v2
+        R.List (List.map (map_class_body_declaration env) v2)
       in
-      let v3 =
-        (match v3 with
-        | Some x -> R.Option (Some (
-            map_argument_list env x
-          ))
-        | None -> R.Option None)
-      in
-      let v4 =
-        (match v4 with
-        | Some x -> R.Option (Some (
-            map_class_body env x
-          ))
-        | None -> R.Option None)
-      in
-      R.Tuple [v1; v2; v3; v4]
+      R.Tuple [v1; v2]
     )
   | `Semg_ellips tok -> R.Case ("Semg_ellips",
       (* "..." *) token env tok
     )
   )
+
+and map_enum_constant (env : env) ((v1, v2, v3, v4) : CST.enum_constant) =
+  let v1 =
+    (match v1 with
+    | Some x -> R.Option (Some (
+        map_modifiers env x
+      ))
+    | None -> R.Option None)
+  in
+  let v2 =
+    (* pattern [\p{XID_Start}_$][\p{XID_Continue}\u00A2_$]* *) token env v2
+  in
+  let v3 =
+    (match v3 with
+    | Some x -> R.Option (Some (
+        map_argument_list env x
+      ))
+    | None -> R.Option None)
+  in
+  let v4 =
+    (match v4 with
+    | Some x -> R.Option (Some (
+        map_class_body env x
+      ))
+    | None -> R.Option None)
+  in
+  R.Tuple [v1; v2; v3; v4]
 
 and map_enum_declaration (env : env) ((v1, v2, v3, v4, v5) : CST.enum_declaration) =
   let v1 =
