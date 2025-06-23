@@ -331,11 +331,14 @@ and catch_clause = (
   * Token.t (* ")" *) * block
 )
 
-and catch_formal_parameter = (
-    modifiers option
-  * catch_type
-  * variable_declarator_id
-)
+and catch_formal_parameter = [
+    `Opt_modifs_catch_type_var_decl_id of (
+        modifiers option
+      * catch_type
+      * variable_declarator_id
+    )
+  | `Semg_ellips of Token.t (* "..." *)
+]
 
 and catch_type = (
     unannotated_type

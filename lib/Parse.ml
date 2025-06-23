@@ -716,13 +716,16 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "catch_formal_parameter",
   Some (
-    Seq [
-      Opt (
-        Token (Name "modifiers");
-      );
-      Token (Name "catch_type");
-      Token (Name "variable_declarator_id");
-    ];
+    Alt [|
+      Seq [
+        Opt (
+          Token (Name "modifiers");
+        );
+        Token (Name "catch_type");
+        Token (Name "variable_declarator_id");
+      ];
+      Token (Name "semgrep_ellipsis");
+    |];
   );
   "catch_type",
   Some (
@@ -3976,14 +3979,24 @@ and trans_catch_formal_parameter ((kind, body) : mt) : CST.catch_formal_paramete
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2] ->
-          (
-            Run.opt
-              (fun v -> trans_modifiers (Run.matcher_token v))
-              v0
-            ,
-            trans_catch_type (Run.matcher_token v1),
-            trans_variable_declarator_id (Run.matcher_token v2)
+      | Alt (0, v) ->
+          `Opt_modifs_catch_type_var_decl_id (
+            (match v with
+            | Seq [v0; v1; v2] ->
+                (
+                  Run.opt
+                    (fun v -> trans_modifiers (Run.matcher_token v))
+                    v0
+                  ,
+                  trans_catch_type (Run.matcher_token v1),
+                  trans_variable_declarator_id (Run.matcher_token v2)
+                )
+            | _ -> assert false
+            )
+          )
+      | Alt (1, v) ->
+          `Semg_ellips (
+            trans_semgrep_ellipsis (Run.matcher_token v)
           )
       | _ -> assert false
       )

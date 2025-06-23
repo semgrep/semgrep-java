@@ -735,17 +735,24 @@ and map_catch_clause (env : env) ((v1, v2, v3, v4, v5) : CST.catch_clause) =
   let v5 = map_block env v5 in
   R.Tuple [v1; v2; v3; v4; v5]
 
-and map_catch_formal_parameter (env : env) ((v1, v2, v3) : CST.catch_formal_parameter) =
-  let v1 =
-    (match v1 with
-    | Some x -> R.Option (Some (
-        map_modifiers env x
-      ))
-    | None -> R.Option None)
-  in
-  let v2 = map_catch_type env v2 in
-  let v3 = map_variable_declarator_id env v3 in
-  R.Tuple [v1; v2; v3]
+and map_catch_formal_parameter (env : env) (x : CST.catch_formal_parameter) =
+  (match x with
+  | `Opt_modifs_catch_type_var_decl_id (v1, v2, v3) -> R.Case ("Opt_modifs_catch_type_var_decl_id",
+      let v1 =
+        (match v1 with
+        | Some x -> R.Option (Some (
+            map_modifiers env x
+          ))
+        | None -> R.Option None)
+      in
+      let v2 = map_catch_type env v2 in
+      let v3 = map_variable_declarator_id env v3 in
+      R.Tuple [v1; v2; v3]
+    )
+  | `Semg_ellips tok -> R.Case ("Semg_ellips",
+      (* "..." *) token env tok
+    )
+  )
 
 and map_catch_type (env : env) ((v1, v2) : CST.catch_type) =
   let v1 = map_unannotated_type env v1 in
