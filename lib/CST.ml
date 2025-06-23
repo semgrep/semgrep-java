@@ -604,6 +604,7 @@ and field_access = (
         `Id of identifier (*tok*)
       | `Rese_id of reserved_identifier
       | `This of Token.t (* "this" *)
+      | `DOTDOTDOT of Token.t (* "..." *)
     ]
 )
 

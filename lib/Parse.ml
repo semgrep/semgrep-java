@@ -1122,6 +1122,7 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "identifier");
         Token (Name "reserved_identifier");
         Token (Name "this");
+        Token (Literal "...");
       |];
     ];
   );
@@ -4798,6 +4799,10 @@ and trans_field_access ((kind, body) : mt) : CST.field_access =
             | Alt (2, v) ->
                 `This (
                   trans_this (Run.matcher_token v)
+                )
+            | Alt (3, v) ->
+                `DOTDOTDOT (
+                  Run.trans_token (Run.matcher_token v)
                 )
             | _ -> assert false
             )

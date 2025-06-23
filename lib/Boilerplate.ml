@@ -1380,6 +1380,9 @@ and map_field_access (env : env) ((v1, v2, v3, v4) : CST.field_access) =
     | `This tok -> R.Case ("This",
         (* "this" *) token env tok
       )
+    | `DOTDOTDOT tok -> R.Case ("DOTDOTDOT",
+        (* "..." *) token env tok
+      )
     )
   in
   R.Tuple [v1; v2; v3; v4]
