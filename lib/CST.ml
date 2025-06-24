@@ -979,7 +979,10 @@ and statement = [
     ]
   | `Semg_ellips of Token.t (* "..." *)
   | `Semg_named_ellips of semgrep_named_ellipsis (*tok*)
-  | `Typed_meta_decl of typed_metavariable_declaration
+  | `Typed_meta_decl of (
+        Token.t (* "(" *) * type_ * identifier (*tok*) * Token.t (* ")" *)
+      * Token.t (* "=" *) * expression * Token.t (* ";" *)
+    )
 ]
 
 and static_initializer = (Token.t (* "static" *) * block)
@@ -1137,11 +1140,6 @@ and type_parameters = (
 
 and type_pattern = (unannotated_type * anon_choice_id_662bcdc)
 
-and typed_metavariable_declaration = (
-    Token.t (* "(" *) * type_ * identifier (*tok*) * Token.t (* ")" *)
-  * Token.t (* "=" *) * expression * Token.t (* ";" *)
-)
-
 and unannotated_type = [
     `Choice_void_type of simple_type
   | `Array_type of (unannotated_type * dimensions)
@@ -1233,7 +1231,15 @@ type program = [
   | `Anno_type_decl of annotation_type_declaration
   | `Exp of expression
   | `Partis of partials
-  | `Typed_meta_decl of typed_metavariable_declaration
+  | `Topl_typed_meta_decl of (
+        Token.t (* "(" *)
+      * type_
+      * identifier (*tok*)
+      * Token.t (* ")" *)
+      * Token.t (* "=" *)
+      * expression
+      * Token.t (* ";" *) option
+    )
   | `Topl_expl_cons_invo of (
         anon_choice_opt_type_args_choice_this_ca6f218
       * argument_list
@@ -1245,23 +1251,23 @@ type line_comment (* inlined *) = Token.t
 
 type this (* inlined *) = Token.t (* "this" *)
 
-type true_ (* inlined *) = Token.t (* "true" *)
-
 type asterisk (* inlined *) = Token.t (* "*" *)
+
+type void_type (* inlined *) = Token.t (* "void" *)
 
 type null_literal (* inlined *) = Token.t (* "null" *)
 
 type semgrep_metavariable (* inlined *) = Token.t
 
-type false_ (* inlined *) = Token.t (* "false" *)
+type underscore_pattern (* inlined *) = Token.t (* "_" *)
 
-type void_type (* inlined *) = Token.t (* "void" *)
+type false_ (* inlined *) = Token.t (* "false" *)
 
 type block_comment (* inlined *) = Token.t
 
 type super (* inlined *) = Token.t (* "super" *)
 
-type underscore_pattern (* inlined *) = Token.t (* "_" *)
+type true_ (* inlined *) = Token.t (* "true" *)
 
 type semgrep_ellipsis (* inlined *) = Token.t (* "..." *)
 
@@ -1269,10 +1275,6 @@ type boolean_type (* inlined *) = Token.t (* "boolean" *)
 
 type scoped_identifier (* inlined *) = (
     name * Token.t (* "." *) * identifier (*tok*)
-)
-
-type uses_module_directive (* inlined *) = (
-    Token.t (* "uses" *) * name * Token.t (* ";" *)
 )
 
 type marker_annotation (* inlined *) = (Token.t (* "@" *) * name)
@@ -1284,6 +1286,10 @@ type provides_module_directive (* inlined *) = (
   * name
   * (Token.t (* "," *) * name) list (* zero or more *)
   * Token.t (* ";" *)
+)
+
+type uses_module_directive (* inlined *) = (
+    Token.t (* "uses" *) * name * Token.t (* ";" *)
 )
 
 type import_declaration (* inlined *) = (
@@ -1432,6 +1438,11 @@ type typed_metavariable (* inlined *) = (
     Token.t (* "(" *) * type_ * identifier (*tok*) * Token.t (* ")" *)
 )
 
+type typed_metavariable_declaration (* inlined *) = (
+    Token.t (* "(" *) * type_ * identifier (*tok*) * Token.t (* ")" *)
+  * Token.t (* "=" *) * expression * Token.t (* ";" *)
+)
+
 type wildcard (* inlined *) = (
     annotation list (* zero or more *)
   * Token.t (* "?" *)
@@ -1441,6 +1452,16 @@ type wildcard (* inlined *) = (
 type toplevel_explicit_constructor_invocation (* inlined *) = (
     anon_choice_opt_type_args_choice_this_ca6f218
   * argument_list
+  * Token.t (* ";" *) option
+)
+
+type toplevel_typed_metavariable_declaration (* inlined *) = (
+    Token.t (* "(" *)
+  * type_
+  * identifier (*tok*)
+  * Token.t (* ")" *)
+  * Token.t (* "=" *)
+  * expression
   * Token.t (* ";" *) option
 )
 

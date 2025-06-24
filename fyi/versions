@@ -20,11 +20,11 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: d414f95fee8f1e48bb8f74727d64cea3a43208ae
+Latest commit in repo: 78b9c78b6f1e98cd1f1d51d1436dd8b99ac617a7
 Last change in file:
-  commit d414f95fee8f1e48bb8f74727d64cea3a43208ae
+  commit 78b9c78b6f1e98cd1f1d51d1436dd8b99ac617a7
   Author: brandonspark <wu.brandonj@gmail.com>
-  Date:   Mon Jun 23 17:11:25 2025 -0700
+  Date:   Mon Jun 23 17:14:11 2025 -0700
   
-      support partial try
+      allow no smemicolon in toplevel typed metavariable decl
 ---

@@ -34,7 +34,6 @@ let extras = [
 let children_regexps : (string * Run.exp option) list = [
   "identifier", None;
   "this", None;
-  "true", None;
   "boolean_type", None;
   "octal_integer_literal", None;
   "false", None;
@@ -45,13 +44,14 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal "double");
     |];
   );
-  "void_type", None;
   "semgrep_named_ellipsis", None;
+  "underscore_pattern", None;
   "asterisk", None;
   "line_comment", None;
   "block_comment", None;
   "hex_floating_point_literal", None;
   "pat_3a2a380", None;
+  "void_type", None;
   "escape_sequence", None;
   "decimal_floating_point_literal", None;
   "imm_tok_bslash_pat_60d9bc8", None;
@@ -68,7 +68,7 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal "char");
     |];
   );
-  "underscore_pattern", None;
+  "true", None;
   "string_fragment", None;
   "reserved_identifier",
   Some (
@@ -193,18 +193,6 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal ";");
     ];
   );
-  "uses_module_directive",
-  Some (
-    Seq [
-      Token (Literal "uses");
-      Alt [|
-        Token (Name "identifier");
-        Token (Name "reserved_identifier");
-        Token (Name "scoped_identifier");
-      |];
-      Token (Literal ";");
-    ];
-  );
   "marker_annotation",
   Some (
     Seq [
@@ -255,6 +243,18 @@ let children_regexps : (string * Run.exp option) list = [
       Repeat (
         Token (Name "requires_modifier");
       );
+      Alt [|
+        Token (Name "identifier");
+        Token (Name "reserved_identifier");
+        Token (Name "scoped_identifier");
+      |];
+      Token (Literal ";");
+    ];
+  );
+  "uses_module_directive",
+  Some (
+    Seq [
+      Token (Literal "uses");
       Alt [|
         Token (Name "identifier");
         Token (Name "reserved_identifier");
@@ -2320,6 +2320,20 @@ let children_regexps : (string * Run.exp option) list = [
       );
     ];
   );
+  "toplevel_typed_metavariable_declaration",
+  Some (
+    Seq [
+      Token (Literal "(");
+      Token (Name "type");
+      Token (Name "identifier");
+      Token (Literal ")");
+      Token (Literal "=");
+      Token (Name "expression");
+      Opt (
+        Token (Literal ";");
+      );
+    ];
+  );
   "toplevel_statement",
   Some (
     Alt [|
@@ -2364,7 +2378,7 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "annotation_type_declaration");
       Token (Name "expression");
       Token (Name "partials");
-      Token (Name "typed_metavariable_declaration");
+      Token (Name "toplevel_typed_metavariable_declaration");
       Token (Name "toplevel_explicit_constructor_invocation");
     |];
   );
@@ -2376,11 +2390,6 @@ let trans_identifier ((kind, body) : mt) : CST.identifier =
   | Children _ -> assert false
 
 let trans_this ((kind, body) : mt) : CST.this =
-  match body with
-  | Leaf v -> v
-  | Children _ -> assert false
-
-let trans_true_ ((kind, body) : mt) : CST.true_ =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
@@ -2416,12 +2425,12 @@ let trans_floating_point_type ((kind, body) : mt) : CST.floating_point_type =
       )
   | Leaf _ -> assert false
 
-let trans_void_type ((kind, body) : mt) : CST.void_type =
+let trans_semgrep_named_ellipsis ((kind, body) : mt) : CST.semgrep_named_ellipsis =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
 
-let trans_semgrep_named_ellipsis ((kind, body) : mt) : CST.semgrep_named_ellipsis =
+let trans_underscore_pattern ((kind, body) : mt) : CST.underscore_pattern =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
@@ -2447,6 +2456,11 @@ let trans_hex_floating_point_literal ((kind, body) : mt) : CST.hex_floating_poin
   | Children _ -> assert false
 
 let trans_pat_3a2a380 ((kind, body) : mt) : CST.pat_3a2a380 =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
+
+let trans_void_type ((kind, body) : mt) : CST.void_type =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
@@ -2509,7 +2523,7 @@ let trans_integral_type ((kind, body) : mt) : CST.integral_type =
       )
   | Leaf _ -> assert false
 
-let trans_underscore_pattern ((kind, body) : mt) : CST.underscore_pattern =
+let trans_true_ ((kind, body) : mt) : CST.true_ =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
@@ -2825,35 +2839,6 @@ let trans_opens_module_directive ((kind, body) : mt) : CST.opens_module_directiv
       )
   | Leaf _ -> assert false
 
-let trans_uses_module_directive ((kind, body) : mt) : CST.uses_module_directive =
-  match body with
-  | Children v ->
-      (match v with
-      | Seq [v0; v1; v2] ->
-          (
-            Run.trans_token (Run.matcher_token v0),
-            (match v1 with
-            | Alt (0, v) ->
-                `Id (
-                  trans_identifier (Run.matcher_token v)
-                )
-            | Alt (1, v) ->
-                `Rese_id (
-                  trans_reserved_identifier (Run.matcher_token v)
-                )
-            | Alt (2, v) ->
-                `Scoped_id (
-                  trans_scoped_identifier (Run.matcher_token v)
-                )
-            | _ -> assert false
-            )
-            ,
-            Run.trans_token (Run.matcher_token v2)
-          )
-      | _ -> assert false
-      )
-  | Leaf _ -> assert false
-
 let trans_marker_annotation ((kind, body) : mt) : CST.marker_annotation =
   match body with
   | Children v ->
@@ -2992,6 +2977,35 @@ let trans_requires_module_directive ((kind, body) : mt) : CST.requires_module_di
             )
             ,
             Run.trans_token (Run.matcher_token v3)
+          )
+      | _ -> assert false
+      )
+  | Leaf _ -> assert false
+
+let trans_uses_module_directive ((kind, body) : mt) : CST.uses_module_directive =
+  match body with
+  | Children v ->
+      (match v with
+      | Seq [v0; v1; v2] ->
+          (
+            Run.trans_token (Run.matcher_token v0),
+            (match v1 with
+            | Alt (0, v) ->
+                `Id (
+                  trans_identifier (Run.matcher_token v)
+                )
+            | Alt (1, v) ->
+                `Rese_id (
+                  trans_reserved_identifier (Run.matcher_token v)
+                )
+            | Alt (2, v) ->
+                `Scoped_id (
+                  trans_scoped_identifier (Run.matcher_token v)
+                )
+            | _ -> assert false
+            )
+            ,
+            Run.trans_token (Run.matcher_token v2)
           )
       | _ -> assert false
       )
@@ -7554,6 +7568,27 @@ let trans_toplevel_explicit_constructor_invocation ((kind, body) : mt) : CST.top
       )
   | Leaf _ -> assert false
 
+let trans_toplevel_typed_metavariable_declaration ((kind, body) : mt) : CST.toplevel_typed_metavariable_declaration =
+  match body with
+  | Children v ->
+      (match v with
+      | Seq [v0; v1; v2; v3; v4; v5; v6] ->
+          (
+            Run.trans_token (Run.matcher_token v0),
+            trans_type_ (Run.matcher_token v1),
+            trans_identifier (Run.matcher_token v2),
+            Run.trans_token (Run.matcher_token v3),
+            Run.trans_token (Run.matcher_token v4),
+            trans_expression (Run.matcher_token v5),
+            Run.opt
+              (fun v -> Run.trans_token (Run.matcher_token v))
+              v6
+          )
+      | _ -> assert false
+      )
+  | Leaf _ -> assert false
+
+
 let trans_toplevel_statement ((kind, body) : mt) : CST.toplevel_statement =
   match body with
   | Children v ->
@@ -7585,7 +7620,6 @@ let trans_partial_method ((kind, body) : mt) : CST.partial_method =
       | _ -> assert false
       )
   | Leaf _ -> assert false
-
 
 let trans_partial_try_statement ((kind, body) : mt) : CST.partial_try_statement =
   match body with
@@ -7661,8 +7695,8 @@ let trans_program ((kind, body) : mt) : CST.program =
             trans_partials (Run.matcher_token v)
           )
       | Alt (7, v) ->
-          `Typed_meta_decl (
-            trans_typed_metavariable_declaration (Run.matcher_token v)
+          `Topl_typed_meta_decl (
+            trans_toplevel_typed_metavariable_declaration (Run.matcher_token v)
           )
       | Alt (8, v) ->
           `Topl_expl_cons_invo (

@@ -2292,8 +2292,17 @@ and map_statement (env : env) (x : CST.statement) =
   | `Semg_named_ellips tok -> R.Case ("Semg_named_ellips",
       (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
     )
-  | `Typed_meta_decl x -> R.Case ("Typed_meta_decl",
-      map_typed_metavariable_declaration env x
+  | `Typed_meta_decl (v1, v2, v3, v4, v5, v6, v7) -> R.Case ("Typed_meta_decl",
+      let v1 = (* "(" *) token env v1 in
+      let v2 = map_type_ env v2 in
+      let v3 =
+        (* pattern [\p{XID_Start}_$][\p{XID_Continue}\u00A2_$]* *) token env v3
+      in
+      let v4 = (* ")" *) token env v4 in
+      let v5 = (* "=" *) token env v5 in
+      let v6 = map_expression env v6 in
+      let v7 = (* ";" *) token env v7 in
+      R.Tuple [v1; v2; v3; v4; v5; v6; v7]
     )
   )
 
@@ -2598,18 +2607,6 @@ and map_type_pattern (env : env) ((v1, v2) : CST.type_pattern) =
   let v2 = map_anon_choice_id_662bcdc env v2 in
   R.Tuple [v1; v2]
 
-and map_typed_metavariable_declaration (env : env) ((v1, v2, v3, v4, v5, v6, v7) : CST.typed_metavariable_declaration) =
-  let v1 = (* "(" *) token env v1 in
-  let v2 = map_type_ env v2 in
-  let v3 =
-    (* pattern [\p{XID_Start}_$][\p{XID_Continue}\u00A2_$]* *) token env v3
-  in
-  let v4 = (* ")" *) token env v4 in
-  let v5 = (* "=" *) token env v5 in
-  let v6 = map_expression env v6 in
-  let v7 = (* ";" *) token env v7 in
-  R.Tuple [v1; v2; v3; v4; v5; v6; v7]
-
 and map_unannotated_type (env : env) (x : CST.unannotated_type) =
   (match x with
   | `Choice_void_type x -> R.Case ("Choice_void_type",
@@ -2836,8 +2833,23 @@ let map_program (env : env) (x : CST.program) =
   | `Partis x -> R.Case ("Partis",
       map_partials env x
     )
-  | `Typed_meta_decl x -> R.Case ("Typed_meta_decl",
-      map_typed_metavariable_declaration env x
+  | `Topl_typed_meta_decl (v1, v2, v3, v4, v5, v6, v7) -> R.Case ("Topl_typed_meta_decl",
+      let v1 = (* "(" *) token env v1 in
+      let v2 = map_type_ env v2 in
+      let v3 =
+        (* pattern [\p{XID_Start}_$][\p{XID_Continue}\u00A2_$]* *) token env v3
+      in
+      let v4 = (* ")" *) token env v4 in
+      let v5 = (* "=" *) token env v5 in
+      let v6 = map_expression env v6 in
+      let v7 =
+        (match v7 with
+        | Some tok -> R.Option (Some (
+            (* ";" *) token env tok
+          ))
+        | None -> R.Option None)
+      in
+      R.Tuple [v1; v2; v3; v4; v5; v6; v7]
     )
   | `Topl_expl_cons_invo (v1, v2, v3) -> R.Case ("Topl_expl_cons_invo",
       let v1 =
