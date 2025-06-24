@@ -12,8 +12,6 @@ type hex_floating_point_literal = Token.t
 
 type decimal_integer_literal = Token.t
 
-type semgrep_named_ellipsis = Token.t (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *)
-
 type integral_type = [
     `Byte of Token.t (* "byte" *)
   | `Short of Token.t (* "short" *)
@@ -23,8 +21,6 @@ type integral_type = [
 ]
 
 type imm_tok_bslash_pat_60d9bc8 = Token.t
-
-type pat_22cdef7 = Token.t (* pattern "\"([^\"\\\\]|\\\\\")*" *)
 
 type decimal_floating_point_literal = Token.t
 
@@ -41,14 +37,20 @@ type floating_point_type = [
   | `Double of Token.t (* "double" *)
 ]
 
+type pat_3a2a380 = Token.t (* pattern "[^\"\\\\]+" *)
+
+type string_fragment = Token.t (* pattern "[^\"\\\\]+" *)
+
+type binary_integer_literal = Token.t
+
+type pat_22cdef7 = Token.t (* pattern "\"([^\"\\\\]|\\\\\")*" *)
+
 type requires_modifier = [
     `Tran of Token.t (* "transitive" *)
   | `Static of Token.t (* "static" *)
 ]
 
-type binary_integer_literal = Token.t
-
-type pat_3a2a380 = Token.t (* pattern "[^\"\\\\]+" *)
+type semgrep_named_ellipsis = Token.t (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *)
 
 type reserved_identifier = [
     `Choice_open of [
@@ -60,8 +62,6 @@ type reserved_identifier = [
     ]
   | `Yield of Token.t (* "yield" *)
 ]
-
-type string_fragment = Token.t (* pattern "[^\"\\\\]+" *)
 
 type identifier =
   Token.t (* pattern [\p{XID_Start}_$][\p{XID_Continue}\u00A2_$]* *)
@@ -1222,6 +1222,7 @@ type partials = [
     `Part_meth of (modifiers option * method_header)
   | `Anno_ of annotation_
   | `Fina_clause of finally_clause
+  | `Part_try_stmt of (Token.t (* "try" *) * block)
 ]
 
 type program = [
@@ -1242,35 +1243,48 @@ type program = [
 
 type line_comment (* inlined *) = Token.t
 
-type underscore_pattern (* inlined *) = Token.t (* "_" *)
+type this (* inlined *) = Token.t (* "this" *)
+
+type true_ (* inlined *) = Token.t (* "true" *)
 
 type asterisk (* inlined *) = Token.t (* "*" *)
 
 type null_literal (* inlined *) = Token.t (* "null" *)
 
-type void_type (* inlined *) = Token.t (* "void" *)
+type semgrep_metavariable (* inlined *) = Token.t
 
 type false_ (* inlined *) = Token.t (* "false" *)
 
-type true_ (* inlined *) = Token.t (* "true" *)
+type void_type (* inlined *) = Token.t (* "void" *)
 
 type block_comment (* inlined *) = Token.t
 
-type this (* inlined *) = Token.t (* "this" *)
-
 type super (* inlined *) = Token.t (* "super" *)
 
-type semgrep_metavariable (* inlined *) = Token.t
-
-type boolean_type (* inlined *) = Token.t (* "boolean" *)
+type underscore_pattern (* inlined *) = Token.t (* "_" *)
 
 type semgrep_ellipsis (* inlined *) = Token.t (* "..." *)
+
+type boolean_type (* inlined *) = Token.t (* "boolean" *)
 
 type scoped_identifier (* inlined *) = (
     name * Token.t (* "." *) * identifier (*tok*)
 )
 
+type uses_module_directive (* inlined *) = (
+    Token.t (* "uses" *) * name * Token.t (* ";" *)
+)
+
 type marker_annotation (* inlined *) = (Token.t (* "@" *) * name)
+
+type provides_module_directive (* inlined *) = (
+    Token.t (* "provides" *)
+  * name
+  * Token.t (* "with" *)
+  * name
+  * (Token.t (* "," *) * name) list (* zero or more *)
+  * Token.t (* ";" *)
+)
 
 type import_declaration (* inlined *) = (
     Token.t (* "import" *)
@@ -1280,23 +1294,10 @@ type import_declaration (* inlined *) = (
   * Token.t (* ";" *)
 )
 
-type uses_module_directive (* inlined *) = (
-    Token.t (* "uses" *) * name * Token.t (* ";" *)
-)
-
 type requires_module_directive (* inlined *) = (
     Token.t (* "requires" *)
   * requires_modifier list (* zero or more *)
   * name
-  * Token.t (* ";" *)
-)
-
-type provides_module_directive (* inlined *) = (
-    Token.t (* "provides" *)
-  * name
-  * Token.t (* "with" *)
-  * name
-  * (Token.t (* "," *) * name) list (* zero or more *)
   * Token.t (* ";" *)
 )
 
@@ -1444,6 +1445,8 @@ type toplevel_explicit_constructor_invocation (* inlined *) = (
 )
 
 type partial_method (* inlined *) = (modifiers option * method_header)
+
+type partial_try_statement (* inlined *) = (Token.t (* "try" *) * block)
 
 type extra = [
     `Line_comment of Loc.t * line_comment

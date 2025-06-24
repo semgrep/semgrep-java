@@ -25,9 +25,6 @@ let map_hex_floating_point_literal (env : env) (tok : CST.hex_floating_point_lit
 let map_decimal_integer_literal (env : env) (tok : CST.decimal_integer_literal) =
   (* decimal_integer_literal *) token env tok
 
-let map_semgrep_named_ellipsis (env : env) (tok : CST.semgrep_named_ellipsis) =
-  (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
-
 let map_integral_type (env : env) (x : CST.integral_type) =
   (match x with
   | `Byte tok -> R.Case ("Byte",
@@ -49,9 +46,6 @@ let map_integral_type (env : env) (x : CST.integral_type) =
 
 let map_imm_tok_bslash_pat_60d9bc8 (env : env) (tok : CST.imm_tok_bslash_pat_60d9bc8) =
   (* imm_tok_bslash_pat_60d9bc8 *) token env tok
-
-let map_pat_22cdef7 (env : env) (tok : CST.pat_22cdef7) =
-  (* pattern "\"([^\"\\\\]|\\\\\")*" *) token env tok
 
 let map_decimal_floating_point_literal (env : env) (tok : CST.decimal_floating_point_literal) =
   (* decimal_floating_point_literal *) token env tok
@@ -78,6 +72,18 @@ let map_floating_point_type (env : env) (x : CST.floating_point_type) =
     )
   )
 
+let map_pat_3a2a380 (env : env) (tok : CST.pat_3a2a380) =
+  (* pattern "[^\"\\\\]+" *) token env tok
+
+let map_string_fragment (env : env) (tok : CST.string_fragment) =
+  (* pattern "[^\"\\\\]+" *) token env tok
+
+let map_binary_integer_literal (env : env) (tok : CST.binary_integer_literal) =
+  (* binary_integer_literal *) token env tok
+
+let map_pat_22cdef7 (env : env) (tok : CST.pat_22cdef7) =
+  (* pattern "\"([^\"\\\\]|\\\\\")*" *) token env tok
+
 let map_requires_modifier (env : env) (x : CST.requires_modifier) =
   (match x with
   | `Tran tok -> R.Case ("Tran",
@@ -88,11 +94,8 @@ let map_requires_modifier (env : env) (x : CST.requires_modifier) =
     )
   )
 
-let map_binary_integer_literal (env : env) (tok : CST.binary_integer_literal) =
-  (* binary_integer_literal *) token env tok
-
-let map_pat_3a2a380 (env : env) (tok : CST.pat_3a2a380) =
-  (* pattern "[^\"\\\\]+" *) token env tok
+let map_semgrep_named_ellipsis (env : env) (tok : CST.semgrep_named_ellipsis) =
+  (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
 
 let map_reserved_identifier (env : env) (x : CST.reserved_identifier) =
   (match x with
@@ -119,9 +122,6 @@ let map_reserved_identifier (env : env) (x : CST.reserved_identifier) =
       (* "yield" *) token env tok
     )
   )
-
-let map_string_fragment (env : env) (tok : CST.string_fragment) =
-  (* pattern "[^\"\\\\]+" *) token env tok
 
 let map_identifier (env : env) (tok : CST.identifier) =
   (* pattern [\p{XID_Start}_$][\p{XID_Continue}\u00A2_$]* *) token env tok
@@ -2805,6 +2805,11 @@ let map_partials (env : env) (x : CST.partials) =
     )
   | `Fina_clause x -> R.Case ("Fina_clause",
       map_finally_clause env x
+    )
+  | `Part_try_stmt (v1, v2) -> R.Case ("Part_try_stmt",
+      let v1 = (* "try" *) token env v1 in
+      let v2 = map_block env v2 in
+      R.Tuple [v1; v2]
     )
   )
 
