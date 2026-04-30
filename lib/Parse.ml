@@ -433,6 +433,7 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Literal ";");
       ];
       Token (Name "semgrep_ellipsis");
+      Token (Name "semgrep_named_ellipsis");
     |];
   );
   "argument_list",
@@ -959,6 +960,7 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "element_value");
       ];
       Token (Name "semgrep_ellipsis");
+      Token (Name "semgrep_named_ellipsis");
     |];
   );
   "enhanced_for_statement",
@@ -983,11 +985,19 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal "{");
       Opt (
         Seq [
-          Token (Name "enum_constant");
+          Alt [|
+            Token (Name "enum_constant");
+            Token (Name "semgrep_ellipsis");
+            Token (Name "semgrep_named_ellipsis");
+          |];
           Repeat (
             Seq [
               Token (Literal ",");
-              Token (Name "enum_constant");
+              Alt [|
+                Token (Name "enum_constant");
+                Token (Name "semgrep_ellipsis");
+                Token (Name "semgrep_named_ellipsis");
+              |];
             ];
           );
         ];
@@ -1028,6 +1038,7 @@ let children_regexps : (string * Run.exp option) list = [
         );
       ];
       Token (Name "semgrep_ellipsis");
+      Token (Name "semgrep_named_ellipsis");
     |];
   );
   "enum_constant",
@@ -1859,7 +1870,11 @@ let children_regexps : (string * Run.exp option) list = [
           Token (Name "switch_block_statement_group");
         );
         Repeat (
-          Token (Name "switch_rule");
+          Alt [|
+            Token (Name "switch_rule");
+            Token (Name "semgrep_ellipsis");
+            Token (Name "semgrep_named_ellipsis");
+          |];
         );
       |];
       Token (Literal "}");
@@ -3396,6 +3411,10 @@ and trans_annotation_type_element_declaration ((kind, body) : mt) : CST.annotati
           `Semg_ellips (
             trans_semgrep_ellipsis (Run.matcher_token v)
           )
+      | Alt (2, v) ->
+          `Semg_named_ellips (
+            trans_semgrep_named_ellipsis (Run.matcher_token v)
+          )
       | _ -> assert false
       )
   | Leaf _ -> assert false
@@ -4541,6 +4560,10 @@ and trans_element_value_pair ((kind, body) : mt) : CST.element_value_pair =
           `Semg_ellips (
             trans_semgrep_ellipsis (Run.matcher_token v)
           )
+      | Alt (2, v) ->
+          `Semg_named_ellips (
+            trans_semgrep_named_ellipsis (Run.matcher_token v)
+          )
       | _ -> assert false
       )
   | Leaf _ -> assert false
@@ -4580,14 +4603,43 @@ and trans_enum_body ((kind, body) : mt) : CST.enum_body =
                 (match v with
                 | Seq [v0; v1] ->
                     (
-                      trans_enum_constant (Run.matcher_token v0),
+                      (match v0 with
+                      | Alt (0, v) ->
+                          `Enum_cst (
+                            trans_enum_constant (Run.matcher_token v)
+                          )
+                      | Alt (1, v) ->
+                          `Semg_ellips (
+                            trans_semgrep_ellipsis (Run.matcher_token v)
+                          )
+                      | Alt (2, v) ->
+                          `Semg_named_ellips (
+                            trans_semgrep_named_ellipsis (Run.matcher_token v)
+                          )
+                      | _ -> assert false
+                      )
+                      ,
                       Run.repeat
                         (fun v ->
                           (match v with
                           | Seq [v0; v1] ->
                               (
                                 Run.trans_token (Run.matcher_token v0),
-                                trans_enum_constant (Run.matcher_token v1)
+                                (match v1 with
+                                | Alt (0, v) ->
+                                    `Enum_cst (
+                                      trans_enum_constant (Run.matcher_token v)
+                                    )
+                                | Alt (1, v) ->
+                                    `Semg_ellips (
+                                      trans_semgrep_ellipsis (Run.matcher_token v)
+                                    )
+                                | Alt (2, v) ->
+                                    `Semg_named_ellips (
+                                      trans_semgrep_named_ellipsis (Run.matcher_token v)
+                                    )
+                                | _ -> assert false
+                                )
                               )
                           | _ -> assert false
                           )
@@ -4701,6 +4753,10 @@ and trans_enum_body_declarations ((kind, body) : mt) : CST.enum_body_declaration
       | Alt (1, v) ->
           `Semg_ellips (
             trans_semgrep_ellipsis (Run.matcher_token v)
+          )
+      | Alt (2, v) ->
+          `Semg_named_ellips (
+            trans_semgrep_named_ellipsis (Run.matcher_token v)
           )
       | _ -> assert false
       )
@@ -6595,9 +6651,25 @@ and trans_switch_block ((kind, body) : mt) : CST.switch_block =
                     v
                 )
             | Alt (1, v) ->
-                `Rep_switch_rule (
+                `Rep_choice_switch_rule (
                   Run.repeat
-                    (fun v -> trans_switch_rule (Run.matcher_token v))
+                    (fun v ->
+                      (match v with
+                      | Alt (0, v) ->
+                          `Switch_rule (
+                            trans_switch_rule (Run.matcher_token v)
+                          )
+                      | Alt (1, v) ->
+                          `Semg_ellips (
+                            trans_semgrep_ellipsis (Run.matcher_token v)
+                          )
+                      | Alt (2, v) ->
+                          `Semg_named_ellips (
+                            trans_semgrep_named_ellipsis (Run.matcher_token v)
+                          )
+                      | _ -> assert false
+                      )
+                    )
                     v
                 )
             | _ -> assert false

@@ -209,6 +209,18 @@ and annotation_type_element_declaration = [
       * Token.t (* ";" *)
     )
   | `Semg_ellips of Token.t (* "..." *)
+  | `Semg_named_ellips of semgrep_named_ellipsis (*tok*)
+]
+
+and anon_choice_enum_cst_1653aac = [
+    `Enum_cst of (
+        modifiers option
+      * identifier (*tok*)
+      * argument_list option
+      * class_body option
+    )
+  | `Semg_ellips of Token.t (* "..." *)
+  | `Semg_named_ellips of semgrep_named_ellipsis (*tok*)
 ]
 
 and anon_choice_formal_param_3e261ef = [
@@ -509,6 +521,7 @@ and element_value_pair = [
         anon_choice_id_662bcdc * Token.t (* "=" *) * element_value
     )
   | `Semg_ellips of Token.t (* "..." *)
+  | `Semg_named_ellips of semgrep_named_ellipsis (*tok*)
 ]
 
 and enhanced_for_statement = (
@@ -526,8 +539,9 @@ and enhanced_for_statement = (
 and enum_body = (
     Token.t (* "{" *)
   * (
-        enum_constant
-      * (Token.t (* "," *) * enum_constant) list (* zero or more *)
+        anon_choice_enum_cst_1653aac
+      * (Token.t (* "," *) * anon_choice_enum_cst_1653aac)
+          list (* zero or more *)
     )
       option
   * Token.t (* "," *) option
@@ -541,14 +555,8 @@ and enum_body_declarations = [
       * class_body_declaration list (* zero or more *)
     )
   | `Semg_ellips of Token.t (* "..." *)
+  | `Semg_named_ellips of semgrep_named_ellipsis (*tok*)
 ]
-
-and enum_constant = (
-    modifiers option
-  * identifier (*tok*)
-  * argument_list option
-  * class_body option
-)
 
 and enum_declaration = (
     modifiers option
@@ -1023,7 +1031,13 @@ and switch_block = (
   * [
         `Rep_switch_blk_stmt_group of
           switch_block_statement_group list (* zero or more *)
-      | `Rep_switch_rule of switch_rule list (* zero or more *)
+      | `Rep_choice_switch_rule of
+          [
+              `Switch_rule of switch_rule
+            | `Semg_ellips of Token.t (* "..." *)
+            | `Semg_named_ellips of semgrep_named_ellipsis (*tok*)
+          ]
+            list (* zero or more *)
     ]
   * Token.t (* "}" *)
 )
@@ -1372,6 +1386,13 @@ type element_value_array_initializer (* inlined *) = (
       option
   * Token.t (* "," *) option
   * Token.t (* "}" *)
+)
+
+type enum_constant (* inlined *) = (
+    modifiers option
+  * identifier (*tok*)
+  * argument_list option
+  * class_body option
 )
 
 type instanceof_expression (* inlined *) = (

@@ -19,12 +19,27 @@ Last change in file:
       feat: allow reserved identifiers in `element_value_pair`
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
-Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 78b9c78b6f1e98cd1f1d51d1436dd8b99ac617a7
+Git repo name: agent-a1e125b44664eae6a
+Latest commit in repo: 80708da730e76d4fb9aea75470297ae83b28324b
 Last change in file:
-  commit 78b9c78b6f1e98cd1f1d51d1436dd8b99ac617a7
-  Author: brandonspark <wu.brandonj@gmail.com>
-  Date:   Mon Jun 23 17:14:11 2025 -0700
+  commit 80708da730e76d4fb9aea75470297ae83b28324b
+  Author: brandonspark <brandon@semgrep.com>
+  Date:   Wed Apr 29 17:26:27 2026 -0700
   
-      allow no smemicolon in toplevel typed metavariable decl
+      fix(java): allow Semgrep ellipsis in switch/enum/annotation positions
+      
+      Augments the Java grammar so canonical Semgrep patterns parse cleanly:
+      
+      - LANG-466: `...` (and `$...META`) between arrow-rule entries in
+        `switch_block`. The colon-form arm already gets ellipsis via the
+        `statement` augmentation; this extends the arrow-rule arm.
+      - LANG-467: `...` and `$...META` inside the enum-constants list of
+        `enum_body`, plus `$...META` in `enum_body_declarations` (`...` was
+        already allowed). Adds a GLR conflict between `enum_body` and
+        `enum_body_declarations` to disambiguate a bare ellipsis after `{`.
+      - LANG-469: `$...META` as an entry in `annotation_argument_list` (via
+        `element_value_pair`) and as an annotation type element declaration in
+        `@interface` bodies (via `annotation_type_element_declaration`).
+      
+      Adds 5 corpus tests covering the minimal ticket repros.
 ---
