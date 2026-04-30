@@ -423,6 +423,46 @@ and map_annotation_type_element_declaration (env : env) (x : CST.annotation_type
   | `Semg_ellips tok -> R.Case ("Semg_ellips",
       (* "..." *) token env tok
     )
+  | `Semg_named_ellips tok -> R.Case ("Semg_named_ellips",
+      (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
+    )
+  )
+
+and map_anon_choice_enum_cst_1653aac (env : env) (x : CST.anon_choice_enum_cst_1653aac) =
+  (match x with
+  | `Enum_cst (v1, v2, v3, v4) -> R.Case ("Enum_cst",
+      let v1 =
+        (match v1 with
+        | Some x -> R.Option (Some (
+            map_modifiers env x
+          ))
+        | None -> R.Option None)
+      in
+      let v2 =
+        (* pattern [\p{XID_Start}_$][\p{XID_Continue}\u00A2_$]* *) token env v2
+      in
+      let v3 =
+        (match v3 with
+        | Some x -> R.Option (Some (
+            map_argument_list env x
+          ))
+        | None -> R.Option None)
+      in
+      let v4 =
+        (match v4 with
+        | Some x -> R.Option (Some (
+            map_class_body env x
+          ))
+        | None -> R.Option None)
+      in
+      R.Tuple [v1; v2; v3; v4]
+    )
+  | `Semg_ellips tok -> R.Case ("Semg_ellips",
+      (* "..." *) token env tok
+    )
+  | `Semg_named_ellips tok -> R.Case ("Semg_named_ellips",
+      (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
+    )
   )
 
 and map_anon_choice_formal_param_3e261ef (env : env) (x : CST.anon_choice_formal_param_3e261ef) =
@@ -1134,6 +1174,9 @@ and map_element_value_pair (env : env) (x : CST.element_value_pair) =
   | `Semg_ellips tok -> R.Case ("Semg_ellips",
       (* "..." *) token env tok
     )
+  | `Semg_named_ellips tok -> R.Case ("Semg_named_ellips",
+      (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
+    )
   )
 
 and map_enhanced_for_statement (env : env) ((v1, v2, v3, v4, v5, v6, v7, v8, v9) : CST.enhanced_for_statement) =
@@ -1159,11 +1202,11 @@ and map_enum_body (env : env) ((v1, v2, v3, v4, v5) : CST.enum_body) =
   let v2 =
     (match v2 with
     | Some (v1, v2) -> R.Option (Some (
-        let v1 = map_enum_constant env v1 in
+        let v1 = map_anon_choice_enum_cst_1653aac env v1 in
         let v2 =
           R.List (List.map (fun (v1, v2) ->
             let v1 = (* "," *) token env v1 in
-            let v2 = map_enum_constant env v2 in
+            let v2 = map_anon_choice_enum_cst_1653aac env v2 in
             R.Tuple [v1; v2]
           ) v2)
         in
@@ -1200,34 +1243,10 @@ and map_enum_body_declarations (env : env) (x : CST.enum_body_declarations) =
   | `Semg_ellips tok -> R.Case ("Semg_ellips",
       (* "..." *) token env tok
     )
+  | `Semg_named_ellips tok -> R.Case ("Semg_named_ellips",
+      (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
+    )
   )
-
-and map_enum_constant (env : env) ((v1, v2, v3, v4) : CST.enum_constant) =
-  let v1 =
-    (match v1 with
-    | Some x -> R.Option (Some (
-        map_modifiers env x
-      ))
-    | None -> R.Option None)
-  in
-  let v2 =
-    (* pattern [\p{XID_Start}_$][\p{XID_Continue}\u00A2_$]* *) token env v2
-  in
-  let v3 =
-    (match v3 with
-    | Some x -> R.Option (Some (
-        map_argument_list env x
-      ))
-    | None -> R.Option None)
-  in
-  let v4 =
-    (match v4 with
-    | Some x -> R.Option (Some (
-        map_class_body env x
-      ))
-    | None -> R.Option None)
-  in
-  R.Tuple [v1; v2; v3; v4]
 
 and map_enum_declaration (env : env) ((v1, v2, v3, v4, v5) : CST.enum_declaration) =
   let v1 =
@@ -2378,8 +2397,20 @@ and map_switch_block (env : env) ((v1, v2, v3) : CST.switch_block) =
     | `Rep_switch_blk_stmt_group xs -> R.Case ("Rep_switch_blk_stmt_group",
         R.List (List.map (map_switch_block_statement_group env) xs)
       )
-    | `Rep_switch_rule xs -> R.Case ("Rep_switch_rule",
-        R.List (List.map (map_switch_rule env) xs)
+    | `Rep_choice_switch_rule xs -> R.Case ("Rep_choice_switch_rule",
+        R.List (List.map (fun x ->
+          (match x with
+          | `Switch_rule x -> R.Case ("Switch_rule",
+              map_switch_rule env x
+            )
+          | `Semg_ellips tok -> R.Case ("Semg_ellips",
+              (* "..." *) token env tok
+            )
+          | `Semg_named_ellips tok -> R.Case ("Semg_named_ellips",
+              (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
+            )
+          )
+        ) xs)
       )
     )
   in
