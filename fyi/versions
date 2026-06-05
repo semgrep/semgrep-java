@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-java/LICENSE
 Git repo name: tree-sitter-java
-Latest commit in repo: a7db5227ec40fcfe94489559d8c9bc7c8181e25a
+Latest commit in repo: e10607b45ff745f5f876bfa3e94fbcc6b44bdc11
 Last change in file:
   commit 594f37a72daf46820a8d5b1b939f39e8aa3c6ce1
   Author: Ayman Nadeem <aymannadeem@github.com>
@@ -10,7 +10,7 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-java/grammar.js
 Git repo name: tree-sitter-java
-Latest commit in repo: a7db5227ec40fcfe94489559d8c9bc7c8181e25a
+Latest commit in repo: e10607b45ff745f5f876bfa3e94fbcc6b44bdc11
 Last change in file:
   commit 488557612b44bde9c5e8c3011138992a8e500c90
   Author: Amaan Qureshi <amaanq12@gmail.com>
@@ -20,11 +20,41 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-java/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 78b9c78b6f1e98cd1f1d51d1436dd8b99ac617a7
+Latest commit in repo: 5abbddd5851593817c64299782bda30f2b72cbb5
 Last change in file:
-  commit 78b9c78b6f1e98cd1f1d51d1436dd8b99ac617a7
-  Author: brandonspark <wu.brandonj@gmail.com>
-  Date:   Mon Jun 23 17:14:11 2025 -0700
+  commit 98f997a1fc039e288a0f5e5f0cb1f0ee7bf3135d
+  Author: Brandon Wu <49291449+brandonspark@users.noreply.github.com>
+  Date:   Fri Jun 27 09:36:56 2025 -0700
   
-      allow no smemicolon in toplevel typed metavariable decl
+      feat: update java (#545)
+      
+      * add typed mvars and deep ellipsis
+      
+      * add semgrep expression entry point
+      
+      * remove SEMGREP_EXPRESSION
+      
+      * add dot access ellipsis
+      
+      * allow ellipsis in decorator args
+      
+      * allow partial annotations
+      
+      * allow typed metavariable declaration
+      
+      * make semi after typed mvar decl optional
+      
+      * allow typed mvar decl as staeemnt
+      
+      * allow ellipsis in type paramters and for header
+      
+      * allow ellipsis in catch
+      
+      * bunch of stuff to allow last parsing tests to pass
+      
+      * enum constant ellipsis -> enum body declarations ellipsis
+      
+      * support partial try
+      
+      * allow no smemicolon in toplevel typed metavariable decl
 ---
